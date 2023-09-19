@@ -47,7 +47,9 @@ def split_key(key):
 
 def cut(data):
     end_index = -1
-    for i, byte in enumerate(data):
+    for i, byte in enumerate(reversed(data)):
+        if i % 8 == 0:
+            break
         if byte == 0x00:
             end_index = i
             break
