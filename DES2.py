@@ -46,16 +46,15 @@ def split_key(key):
         return key1, key2
 
 def cut(data):
-    end_index = -1
+    data_len = len(data)
+    index = -1
     for i, byte in enumerate(reversed(data)):
-        if i % 8 == 0:
-            break
-        if byte == 0x00:
-            end_index = i
+        if byte != 0x00:
+            index = i
             break
 
-    if end_index != -1:
-        return data[:end_index]
+    if index != -1:
+        return data[:data_len - index]
     else:
         return data
 
