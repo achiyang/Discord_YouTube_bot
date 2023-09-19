@@ -9,7 +9,6 @@ from bs4 import BeautifulSoup
 import getpass
 import DES2
 
-TOKEN = 'MTEzNzYzMTIyNzcyMjA3MjEzNg.GbAcbe.NRRDvqVmXq9X2RokDrHNqI0tiGtt7iTAZsCbSE'
 #YOUTUBE_API_KEY = 'AIzaSyDX7P5Y3erIHvvP9zoPxwsravcpSgG0gcI'    #sinhouse2
 YOUTUBE_API_KEY = 'AIzaSyB9n_pEu1dPbGxSN6dAgrfp-IqWelQ9q1o'     #sinhouse327
 
@@ -25,7 +24,7 @@ discord_channel_id = 1133945327360168088
 
 @client.event
 async def on_ready():
-    global youtube_channels
+    global youtube_channels         
     await tree.sync()
     with open("youtube_channels.json", "r") as f:
         youtube_channels = json.load(f)

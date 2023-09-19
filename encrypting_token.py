@@ -8,5 +8,5 @@ token = token.encode("utf-8")
 encipher = new(key)
 encrypted_token = encipher.encrypt(token)
 
-with open("youtube.bot/bot.token", "wb") as f:
+with open("bot.token", "wb") as f:
     f.write(encrypted_token)
