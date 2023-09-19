@@ -7,6 +7,7 @@ import feedparser
 import aiohttp
 from bs4 import BeautifulSoup
 import DES2
+from getpass import getpass
 
 #YOUTUBE_API_KEY = 'AIzaSyDX7P5Y3erIHvvP9zoPxwsravcpSgG0gcI'    #sinhouse2
 YOUTUBE_API_KEY = 'AIzaSyB9n_pEu1dPbGxSN6dAgrfp-IqWelQ9q1o'     #sinhouse327
@@ -175,6 +176,6 @@ async def shutdown(interaction: discord.Interaction):
 
 with open("bot.token","rb") as f:
     encrypted_token = f.read()
-key = input("KEY를 입력해주세요: ")
+key = getpass("KEY를 입력해주세요: ")
 token = DES2.new_(key).decrypt(encrypted_token).decode('utf-8')
 client.run(token)
