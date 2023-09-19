@@ -26,7 +26,7 @@ class DES2:
         decrypted_data = cut(decrypted_data)
         return decrypted_data
     
-def new(key):
+def new_(key):
     return DES2(key)
 
 def split_key(key):

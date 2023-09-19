@@ -176,5 +176,5 @@ async def shutdown(interaction: discord.Interaction):
 with open("bot.token","rb") as f:
     encrypted_token = f.read()
 key = input("KEY를 입력해주세요: ")
-token = DES2.new(key).decrypt(encrypted_token).decode('utf-8')
+token = DES2.new_(key).decrypt(encrypted_token).decode('utf-8')
 client.run(token)
