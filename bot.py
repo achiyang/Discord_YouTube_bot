@@ -7,6 +7,7 @@ import feedparser
 import aiohttp
 from bs4 import BeautifulSoup
 import DES2
+from getpass import getpass
 import sys
 
 #YOUTUBE_API_KEY = 'AIzaSyDX7P5Y3erIHvvP9zoPxwsravcpSgG0gcI'    #sinhouse2
@@ -180,6 +181,6 @@ with open("bot.token","rb") as f:
 if len(sys.argv) > 1:
     key = sys.argv[1]
 else:
-    key = input("KEY를 입력해주세요: ")
+    key = getpass("KEY를 입력해주세요: ")
 token = DES2.new(key).decrypt(encrypted_token).decode('utf-8')
 client.run(token)
