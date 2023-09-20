@@ -50,17 +50,19 @@ async def fetch_youtube_video(channel_id):
                 await fetch_youtube_video(channel_id)
 
 async def check_youtube(channel_id):
+    change = False
     video_id = str(await fetch_youtube_video(channel_id))
-    latest_video_id = youtube_channels[channel_id]["latest_video_id"]
+    latest_video_id = youtube_channels.get(channel_id).get("latest_video_id")
 
-    if latest_video_id is None:
+    if latest_video_id is None or latest_video_id != video_id:
         latest_video_id = video_id
         await send_new_video_link(video_id)
-    elif latest_video_id != video_id:
-        latest_video_id = video_id
-        await send_new_video_link(video_id)
+        change = True
 
-    youtube_channels[channel_id]["latest_video_id"] = latest_video_id
+    if change:
+        youtube_channels[channel_id]["latest_video_id"] = latest_video_id
+        with open("youtube_channels.json", "w") as f : 
+            json.dump(youtube_channels, f, indent=4)
 
 async def main():
     while True:
@@ -70,11 +72,9 @@ async def main():
 
 @tree.command(name='목록', description='알림을 받는 유튜브 채널 목록을 불러옵니다')
 async def list(interaction: discord.Interaction):
-    await interaction.response.defer()
+    await interaction.response.send_message("목록을 불러옵니다", silent=True)
 
-    embeds = []
-
-    async def make_embeds(channel_id):
+    async def send_embed(channel_id):
         channel_name = youtube_channels[channel_id]["channel_name"]
         channel_description = youtube_channels[channel_id]["channel_description"]
         channel_image_url = youtube_channels[channel_id]["channel_image_url"]
@@ -83,10 +83,11 @@ async def list(interaction: discord.Interaction):
         embed.set_author(name=channel_name, url=f"https://www.youtube.com/channel/{channel_id}", icon_url=channel_image_url)
         embed.set_thumbnail(url=channel_image_url)
 
-        embeds.append(embed)
+        await interaction.channel.send(content="", embed=embed, silent=True)
 
-    await asyncio.gather(*[make_embeds(channel_id=channel_id) for channel_id in youtube_channels])
-    await interaction.followup.send(content='', embeds=embeds)
+    tasks = [send_embed(channel_id=channel_id) for channel_id in youtube_channels]
+
+    await asyncio.gather(*tasks)
 
 
 @tree.command(name='추가', description='알림을 받을 유튜브 채널을 추가합니다')
@@ -130,9 +131,13 @@ async def add_channel(interaction: discord.Interaction, search: str):
 
     await asyncio.gather(*[add_reaction(reaction) for reaction in reactions])
 
+    operation_active = True
+
     
     @client.event
     async def on_reaction_add(reaction, user):
+        nonlocal operation_active
+
         if user.bot:
             return
         elif user == interaction.user and reaction.message == sent_message:
@@ -157,12 +162,16 @@ async def add_channel(interaction: discord.Interaction, search: str):
                     }
                 await interaction.followup.send("알림을 받을 유튜브 채널을 추가했습니다.", embed=embeds[selected_value])
                 await sent_message.delete()
-                with open("youtube_channels.json", "w") as f : 
-                    json.dump(youtube_channels, f, indent=4)
+                operation_active = False
                 await check_youtube(channel_id)
                 return
         else:
             return
+
+    await asyncio.sleep(30)
+    if operation_active:
+        await sent_message.delete()
+        await interaction.followup.send("알림을 받을 채널 추가를 취소합니다")
 
 
 @tree.command(name='종료', description='봇을 종료합니다')
