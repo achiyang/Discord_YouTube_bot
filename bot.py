@@ -30,7 +30,7 @@ async def on_ready():
     with open("youtube_channels.json", "r") as f:
         youtube_channels = json.load(f)
     print(f'Logged in as {client.user.name} ({client.user.id})')
-    print('------')
+    print('-' * 48)
     await main()
 
 async def send_new_video_link(video_id):
@@ -157,6 +157,8 @@ async def add_channel(interaction: discord.Interaction, search: str):
                     }
                 await interaction.followup.send("알림을 받을 유튜브 채널을 추가했습니다.", embed=embeds[selected_value])
                 await sent_message.delete()
+                with open("youtube_channels.json", "w") as f : 
+                    json.dump(youtube_channels, f, indent=4)
                 await check_youtube(channel_id)
                 return
         else:
