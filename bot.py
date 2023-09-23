@@ -86,6 +86,19 @@ class DiscordBot(commands.Bot):
                         f"Failed to load extension {extension}\n{exception}"
                     )
 
+    async def reload_cogs(self) -> None:
+        for file in os.listdir(f"{os.path.realpath(os.path.dirname(__file__))}/cogs"):
+            if file.endswith(".py"):
+                extension = file[:-3]
+                try:
+                    await self.reload_extension(f"cogs.{extension}")
+                    self.logger.info(f"Loaded extension '{extension}'")
+                except Exception as e:
+                    exception = f"{type(e).__name__}: {e}"
+                    self.logger.error(
+                        f"Failed to load extension {extension}\n{exception}"
+                    )
+
     @tasks.loop(minutes=1.0)
     async def status_task(self) -> None:
         custom_activity = discord.Activity(
@@ -93,7 +106,7 @@ class DiscordBot(commands.Bot):
             name="Youtube"
         )
         await self.change_presence(activity=custom_activity)
-        
+
     @status_task.before_loop
     async def before_status_task(self) -> None:
         await self.wait_until_ready()
