@@ -1,197 +1,190 @@
 import discord
-from discord import app_commands
-import asyncio
-from googleapiclient.discovery import build
+from discord.ext import commands, tasks
+from discord.ext.commands import Context
 import json
-import feedparser
-import aiohttp
-from bs4 import BeautifulSoup
-import DES2
+import logging
 from getpass import getpass
+import os
 import sys
+import platform
+from DES2 import new_
 
-#YOUTUBE_API_KEY = 'AIzaSyDX7P5Y3erIHvvP9zoPxwsravcpSgG0gcI'    #sinhouse2
-YOUTUBE_API_KEY = 'AIzaSyB9n_pEu1dPbGxSN6dAgrfp-IqWelQ9q1o'     #sinhouse327
+if not os.path.isfile(f"{os.path.realpath(os.path.dirname(__file__))}/config.json"):
+    sys.exit("'config.json' not found! Please add it and try again.")
+else:
+    with open(f"{os.path.realpath(os.path.dirname(__file__))}/config.json") as file:
+        config = json.load(file)
 
 intents = discord.Intents.default()
-client = discord.Client(intents=intents)
-tree = app_commands.CommandTree(client)
-intents.reactions = True
+intents.message_content = True
 
-youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
+class LoggingFormatter(logging.Formatter):
+    # Colors
+    black = "\x1b[30m"
+    red = "\x1b[31m"
+    green = "\x1b[32m"
+    yellow = "\x1b[33m"
+    blue = "\x1b[34m"
+    gray = "\x1b[38m"
+    # Styles
+    reset = "\x1b[0m"
+    bold = "\x1b[1m"
 
-discord_channel_id = 1133945327360168088
+    COLORS = {
+        logging.DEBUG: gray + bold,
+        logging.INFO: blue + bold,
+        logging.WARNING: yellow + bold,
+        logging.ERROR: red,
+        logging.CRITICAL: red + bold,
+    }
 
+    def format(self, record):
+        log_color = self.COLORS[record.levelno]
+        format = "(black){asctime}(reset) (levelcolor){levelname:<8}(reset) (green){name}(reset) {message}"
+        format = format.replace("(black)", self.black + self.bold)
+        format = format.replace("(reset)", self.reset)
+        format = format.replace("(levelcolor)", log_color)
+        format = format.replace("(green)", self.green + self.bold)
+        formatter = logging.Formatter(format, "%Y-%m-%d %H:%M:%S", style="{")
+        return formatter.format(record)
 
-@client.event
-async def on_ready():
-    global youtube_channels         
-    await tree.sync()
-    with open("youtube_channels.json", "r") as f:
-        youtube_channels = json.load(f)
-    print(f'Logged in as {client.user.name} ({client.user.id})')
-    print('-' * 48)
-    await main()
+logger = logging.getLogger("discord_bot")
+logger.setLevel(logging.INFO)
 
-async def send_new_video_link(video_id):
-    video_url = f'https://youtu.be/{video_id}'
-    channel = client.get_channel(discord_channel_id)
-    await channel.send(video_url)
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(LoggingFormatter())
 
-async def fetch_youtube_video(channel_id):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(f'https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}') as response:
-            if response.status == 200:
-                data = await response.text()
-                feed = await asyncio.to_thread(feedparser.parse, data)
-                video_id = feed["entries"][0]["yt_videoid"]
-                return video_id
-            else:
-                await fetch_youtube_video(channel_id)
+file_handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
+file_handler_formatter = logging.Formatter(
+    "[{asctime}] [{levelname:<8}] {name}: {message}", "%Y-%m-%d %H:%M:%S", style="{"
+)
+file_handler.setFormatter(file_handler_formatter)
 
-async def check_youtube(channel_id):
-    change = False
-    video_id = str(await fetch_youtube_video(channel_id))
-    latest_video_id = youtube_channels.get(channel_id).get("latest_video_id")
+logger.addHandler(console_handler)
+logger.addHandler(file_handler)
 
-    if latest_video_id is None or latest_video_id != video_id:
-        latest_video_id = video_id
-        await send_new_video_link(video_id)
-        change = True
+class DiscordBot(commands.Bot):
+    def __init__(self) -> None:
+        super().__init__(
+            command_prefix=commands.when_mentioned_or(config["prefix"]),
+            intents=intents,
+            help_command=None
+        )
+        self.logger = logger
+        self.config = config
 
-    if change:
-        youtube_channels[channel_id]["latest_video_id"] = latest_video_id
-        with open("youtube_channels.json", "w") as f : 
-            json.dump(youtube_channels, f, indent=4)
+    async def load_cogs(self) -> None:
+        for file in os.listdir(f"{os.path.realpath(os.path.dirname(__file__))}/cogs"):
+            if file.endswith(".py"):
+                extension = file[:-3]
+                try:
+                    await self.load_extension(f"cogs.{extension}")
+                    self.logger.info(f"Loaded extension '{extension}'")
+                except Exception as e:
+                    exception = f"{type(e).__name__}: {e}"
+                    self.logger.error(
+                        f"Failed to load extension {extension}\n{exception}"
+                    )
 
-async def main():
-    while True:
-        await asyncio.gather(*[check_youtube(channel_id=channel_id) for channel_id in youtube_channels])
-        await asyncio.sleep(60)
+    @tasks.loop(minutes=1.0)
+    async def status_task(self) -> None:
+        custom_activity = discord.Activity(
+            type=discord.ActivityType.watching,
+            name="Youtube"
+        )
+        await self.change_presence(activity=custom_activity)
+        
+    @status_task.before_loop
+    async def before_status_task(self) -> None:
+        await self.wait_until_ready()
 
+    async def setup_hook(self) -> None:
+        self.logger.info(f"Logged in as {self.user.name}")
+        self.logger.info(f"discord.py API version: {discord.__version__}")
+        self.logger.info(f"Python version: {platform.python_version()}")
+        self.logger.info(
+            f"Running on: {platform.system()} {platform.release()} ({os.name})"
+        )
+        await self.load_cogs()
+        await bot.tree.sync()
+        self.logger.info("-------------------")
+        self.status_task.start()
 
-@tree.command(name='목록', description='알림을 받는 유튜브 채널 목록을 불러옵니다')
-async def list(interaction: discord.Interaction):
-    await interaction.response.send_message("목록을 불러옵니다", silent=True)
-
-    async def send_embed(channel_id):
-        channel_name = youtube_channels[channel_id]["channel_name"]
-        channel_description = youtube_channels[channel_id]["channel_description"]
-        channel_image_url = youtube_channels[channel_id]["channel_image_url"]
-
-        embed=discord.Embed(title="", url=f"https://www.youtube.com/channel/{channel_id}", description=channel_description, color=0xff0000)
-        embed.set_author(name=channel_name, url=f"https://www.youtube.com/channel/{channel_id}", icon_url=channel_image_url)
-        embed.set_thumbnail(url=channel_image_url)
-
-        await interaction.channel.send(content="", embed=embed, silent=True)
-
-    tasks = [send_embed(channel_id=channel_id) for channel_id in youtube_channels]
-
-    await asyncio.gather(*tasks)
-
-
-@tree.command(name='추가', description='알림을 받을 유튜브 채널을 추가합니다')
-@app_commands.describe(search='알림을 받을 유튜브 채널을 입력하세요')
-async def add_channel(interaction: discord.Interaction, search: str):
-    await interaction.response.defer()
-
-    search_response = youtube.search().list(
-    q=search,
-    type='channel',
-    part='snippet',
-    maxResults=5
-    ).execute()
-
-    channel_names = []
-    channel_image_urls = []
-    channel_descriptions = []
-    embeds = []
-
-    for search_result in search_response.get("items", []):
-        channel_id = search_result["id"]["channelId"]
-        channel_name = search_result["snippet"]["title"]
-        channel_description = search_result['snippet']['description']
-        channel_image_url = search_result["snippet"]["thumbnails"]["default"]["url"]
-
-        embed=discord.Embed(title="", url=f"https://www.youtube.com/channel/{channel_id}", description=channel_description, color=0xff0000)
-        embed.set_author(name=channel_name, url=f"https://www.youtube.com/channel/{channel_id}", icon_url=channel_image_url)
-        embed.set_thumbnail(url=channel_image_url)
-
-        channel_names.append(channel_name)
-        channel_image_urls.append(channel_image_url)
-        channel_descriptions.append(channel_description)
-        embeds.append(embed)
-
-    reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣']
-
-    sent_message = await interaction.channel.send(content='', embeds=embeds)
-
-    async def add_reaction(reaction):
-        await sent_message.add_reaction(reaction)
-
-    await asyncio.gather(*[add_reaction(reaction) for reaction in reactions])
-
-    operation_active = True
-
-    
-    @client.event
-    async def on_reaction_add(reaction, user):
-        nonlocal operation_active
-
-        if user.bot:
+    async def on_message(self, message: discord.Message) -> None:
+        if message.author == self.user or message.author.bot:
             return
-        elif user == interaction.user and reaction.message == sent_message:
-            emoji_to_value = {
-                '1️⃣': 0,
-                '2️⃣': 1,
-                '3️⃣': 2,
-                '4️⃣': 3,
-                '5️⃣': 4
-            }
+        await self.process_commands(message)
 
-            if reaction.emoji in emoji_to_value:
-                selected_value = emoji_to_value[reaction.emoji]
-                channel = search_response.get("items", [])[selected_value]
-                channel_id = str(channel['id']['channelId'])
-                if channel_id not in youtube_channels:
-                    youtube_channels[channel_id] = {
-                        "latest_video_id": None,
-                        "channel_name": channel_names[selected_value],
-                        "channel_image_url": channel_image_urls[selected_value],
-                        "channel_description": channel_descriptions[selected_value]
-                    }
-                await interaction.followup.send("알림을 받을 유튜브 채널을 추가했습니다.", embed=embeds[selected_value])
-                await sent_message.delete()
-                operation_active = False
-                await check_youtube(channel_id)
-                return
+    async def on_command_completion(self, context: Context) -> None:
+        full_command_name = context.command.qualified_name
+        split = full_command_name.split(" ")
+        executed_command = str(split[0])
+        if context.guild is not None:
+            self.logger.info(
+                f"Executed {executed_command} command in {context.guild.name} (ID: {context.guild.id}) by {context.author} (ID: {context.author.id})"
+            )
         else:
-            return
+            self.logger.info(
+                f"Executed {executed_command} command by {context.author} (ID: {context.author.id}) in DMs"
+            )
 
-    await asyncio.sleep(30)
-    if operation_active:
-        await sent_message.delete()
-        await interaction.followup.send("알림을 받을 채널 추가를 취소합니다")
-
-
-@tree.command(name='종료', description='봇을 종료합니다')
-async def shutdown(interaction: discord.Interaction):
-    await interaction.response.defer(ephemeral=True)
-    if interaction.user.id in [508138071984832513, 1021753759015116820]:
-        with open("youtube_channels.json", "w") as f : 
-            json.dump(youtube_channels, f, indent=4)
-        await interaction.followup.send("봇을 종료합니다")
-        await client.close()
-    else:
-        interaction.followup.send(f"너는 {client.user.mention}을(를) 종료할 권한이 없습니다.")
-
-
-with open("bot.token","rb") as f:
-    encrypted_token = f.read()
+    async def on_command_error(self, context: Context, error) -> None:
+        if isinstance(error, commands.CommandOnCooldown):
+            minutes, seconds = divmod(error.retry_after, 60)
+            hours, minutes = divmod(minutes, 60)
+            hours = hours % 24
+            embed = discord.Embed(
+                description=f"**Please slow down** - You can use this command again in {f'{round(hours)} hours' if round(hours) > 0 else ''} {f'{round(minutes)} minutes' if round(minutes) > 0 else ''} {f'{round(seconds)} seconds' if round(seconds) > 0 else ''}.",
+                color=0xE02B2B,
+            )
+            await context.send(embed=embed)
+        elif isinstance(error, commands.NotOwner):
+            embed = discord.Embed(
+                description="You are not the owner of the bot!", color=0xE02B2B
+            )
+            await context.send(embed=embed)
+            if context.guild:
+                self.logger.warning(
+                    f"{context.author} (ID: {context.author.id}) tried to execute an owner only command in the guild {context.guild.name} (ID: {context.guild.id}), but the user is not an owner of the bot."
+                )
+            else:
+                self.logger.warning(
+                    f"{context.author} (ID: {context.author.id}) tried to execute an owner only command in the bot's DMs, but the user is not an owner of the bot."
+                )
+        elif isinstance(error, commands.MissingPermissions):
+            embed = discord.Embed(
+                description="You are missing the permission(s) `"
+                + ", ".join(error.missing_permissions)
+                + "` to execute this command!",
+                color=0xE02B2B,
+            )
+            await context.send(embed=embed)
+        elif isinstance(error, commands.BotMissingPermissions):
+            embed = discord.Embed(
+                description="I am missing the permission(s) `"
+                + ", ".join(error.missing_permissions)
+                + "` to fully perform this command!",
+                color=0xE02B2B,
+            )
+            await context.send(embed=embed)
+        elif isinstance(error, commands.MissingRequiredArgument):
+            embed = discord.Embed(
+                title="Error!",
+                # We need to capitalize because the command arguments have no capital letter in the code and they are the first word in the error message.
+                description=str(error).capitalize(),
+                color=0xE02B2B,
+            )
+            await context.send(embed=embed)
+        else:
+            raise error
 
 if len(sys.argv) > 1:
     key = sys.argv[1]
 else:
     key = getpass("KEY를 입력해주세요: ")
-token = DES2.new(key).decrypt(encrypted_token).decode('utf-8')
-client.run(token)
+
+encrypted_token = open(f"{os.path.realpath(os.path.dirname(__file__))}/bot.token", "rb").read()
+bot_token = new_(key).decrypt(encrypted_token).decode('utf-8')
+
+bot = DiscordBot()
+bot.run(bot_token)
