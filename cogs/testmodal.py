@@ -1,12 +1,13 @@
-from discord.ui import Modal, View
+from discord.ui import Modal
 import discord
 from discord.ext import commands
+from commands import Context
 
 class Test(commands.Cog, name='test'):
     def __init__(self, bot):
         self.bot = bot
 
-    class TestModal(Modal, View, title="TestModal"):
+    class TestModal(Modal, title="TestModal"):
         name = discord.ui.TextInput(
             label="Name",
             placeholder="Your name here...",
@@ -16,12 +17,12 @@ class Test(commands.Cog, name='test'):
             placeholder="Your answer here...",
         )
 
-        async def on_submit(self, context: commands.Context):
-            await context.send(f"test\n{self.name}\n{self.answer}")
+        async def on_submit(self, ctx: Context):
+            await ctx.send(f"test\n{self.name}\n{self.answer}")
 
-    @discord.app_commands.tree.CommandTree(name="modaltest")
-    async def test(self, interaction: discord.Interaction):
-        await interaction.response.send_modal(self.TestModal())
+    @commands.hybrid_command(name="modaltest")
+    async def test(self, ctx: Context):
+        await ctx.send(self.TestModal())
 
 async def setup(bot):
     await bot.add_cog(Test(bot))
