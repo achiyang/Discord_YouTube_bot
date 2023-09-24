@@ -64,7 +64,7 @@ class Youtube(commands.Cog, name="youtube"):
     async def cog_load(self):
         self.loop_check.start()
 
-    @commands.hybrid_command(name="알림추가", description="새 영상 알림을 받을 디스코드 채널을 추가합니다")
+    @commands.hybrid_command(name="채널", description="새 영상 알림을 받을 디스코드 채널을 추가합니다")
     @app_commands.describe(channel_id="알림을 받을 디스코드 채널의 ID를 입력해주세요")
     async def add_discord_channel(self, context: Context, channel_id: str):
         notification_channels.append(channel_id)
@@ -72,7 +72,7 @@ class Youtube(commands.Cog, name="youtube"):
             json.dump(notification_channels, f, indent=4)
         await context.send("알림을 보낼 디스코드 채널을 추가했습니다", silent=True)
 
-    @commands.hybrid_command(name='추가', description='알림을 받을 유튜브 채널을 추가합니다')
+    @commands.hybrid_command(name='알림', description='알림을 받을 유튜브 채널을 추가합니다')
     @app_commands.describe(search='알림을 받을 유튜브 채널을 입력하세요')
     async def add_channel(self, context: Context, search: str):
         await context.defer()
@@ -139,12 +139,12 @@ class Youtube(commands.Cog, name="youtube"):
                             "channel_image_url": channel_image_urls[selected_value],
                             "channel_description": channel_descriptions[selected_value]
                         }
-                        await context.send("알림을 받을 유튜브 채널을 추가했습니다.", embed=embeds[selected_value])
                         await sent_message.delete()
+                        await context.send("알림을 받을 유튜브 채널을 추가했습니다.", embed=embeds[selected_value])
                         await self.check_youtube(channel_id)
                     else:
-                        await context.send("이미 추가된 채널입니다")
                         await sent_message.delete()
+                        await context.send("이미 추가된 채널입니다")
                 if reaction.emoji == '❎':
                     await sent_message.delete()
                     await context.send("채널 추가를 취소합니다")
