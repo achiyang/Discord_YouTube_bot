@@ -286,8 +286,11 @@ class DeleteButton(discord.ui.Button):
 
     async def callback(self, interaction) -> Any:
         if interaction.user in [508138071984832513, 1021753759015116820]:
-            message = interaction.message
-            await message.delete()
+            deleted_embed = discord.Embed(
+                description="삭제되었습니다",
+                color=0xff0000
+            )
+            await interaction.response.edit_message(embed=deleted_embed, view=None)
             del youtube_channels[re.search(r"del_(.*)", self.custom_id).group(1)]
             with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f:
                 json.dump(youtube_channels, f, indent=4)
