@@ -11,6 +11,7 @@ from googleapiclient.discovery import build
 import aiohttp
 import feedparser
 import asyncio
+import re
 import os
 import json
 from dotenv import load_dotenv
@@ -156,7 +157,7 @@ class Youtube(commands.Cog, name="youtube"):
 
     @commands.hybrid_command(name="목록", description="유튜브 채널 목록을 불러옵니다")
     async def channel_list(self, context: Context):
-        await context.send("유튜브 채널 목록을 불러왔습니다")
+        await context.send("유튜브 채널 목록을 불러옵니다", delete_after=180)
 
         async def send_list(channel_id):
             channel_name = youtube_channels[channel_id]["channel_name"]
@@ -168,10 +169,12 @@ class Youtube(commands.Cog, name="youtube"):
             embed.set_thumbnail(url=channel_image_url)
 
             view = discord.ui.View()
-            button = DeleteButton(custom_id=channel_id, emoji="❌")
-            view.add_item(button)
+            button1 = VideoButton(custom_id=f"vid_{channel_id}", emoji="✅")
+            button2 = DeleteButton(custom_id=f"del_{channel_id}", emoji="❎")
+            view.add_item(button1)
+            view.add_item(button2)
 
-            await context.channel.send(embed=embed, view=view, silent=True)
+            await context.channel.send(embed=embed, view=view, silent=True, delete_after=180)
 
         await asyncio.gather(*[send_list(channel_id=channel_id) for channel_id in youtube_channels])
 
@@ -180,14 +183,97 @@ class DeleteButton(discord.ui.Button):
         super().__init__(style=style, label=label, disabled=disabled, custom_id=custom_id, url=url, emoji=emoji, row=row)
 
     async def callback(self, interaction) -> Any:
-        if interaction.user != interaction.message.author:
-            await interaction.response.send_message("너가 왜 삭제합니까...", ephemeral=True)
-            return
-        message = interaction.message
-        await message.delete()
-        del youtube_channels[self.custom_id]
-        with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f:
-            json.dump(youtube_channels, f, indent=4)
+        if interaction.user not in [628120124464955392, 1024995328124014673]:
+            message = interaction.message
+            await message.delete()
+            del youtube_channels[re.search(r"del_(.*)", self.custom_id).group(1)]
+            with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f:
+                json.dump(youtube_channels, f, indent=4)
+        else:
+            await interaction.response.send_message("쪼또'만' 메시지를 삭제할 권한이 없습니다")
+
+class VideoButton(discord.ui.Button):
+    def __init__(self, *, style: ButtonStyle = ButtonStyle.primary, label = "최신영상", disabled: bool = False, custom_id: str | None = None, url: str | None = None, emoji: str | Emoji | PartialEmoji | None = None, row: int | None = None):
+        super().__init__(style=style, label=label, disabled=disabled, custom_id=custom_id, url=url, emoji=emoji, row=row)
+
+    async def callback(self, interaction) -> Any:
+        channel_id = re.search(r"vid_(.*)", self.custom_id).group(1)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f'https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}') as response:
+                if response.status == 200:
+                    data = await response.text()
+                    feed = await asyncio.to_thread(feedparser.parse, data)
+
+        global embeds
+        embeds = []
+
+        for video in feed["entries"]:
+            channel_name = video["author_detail"]["name"]
+            channel_url = video["author_detail"]["href"]
+            channel_icon_url = youtube_channels[channel_id]["channel_image_url"]
+            video_title = video["title"]
+            video_url = video["link"]
+            video_thumbnail_url = video["media_thumbnail"][0]["url"]
+
+            embed = discord.Embed(
+                title=video_title,
+                url=video_url,
+                color=0xff0000
+            )
+            embed.set_image(
+                url=video_thumbnail_url,
+            )
+            embed.set_author(
+                name=channel_name,
+                url=channel_url,
+                icon_url=channel_icon_url
+            )
+            embeds.append(embed)
+
+        max_page = len(embeds)
+        page = 0
+        prev_button = PrevButton(page, max_page, disabled=True)
+        next_button = NextButton(page, max_page)
+        view = discord.ui.View()
+        view.add_item(prev_button)
+        view.add_item(next_button)
+        await interaction.response.send_message(embed=embeds[page], view=view)
+
+class PrevButton(discord.ui.Button):
+    def __init__(self, page, max_page, *, style: ButtonStyle = ButtonStyle.secondary, label = "Prev", disabled: bool = False, custom_id: str | None = None, url: str | None = None, emoji = "⬅️", row: int | None = None):
+        super().__init__(style=style, label=label, disabled=disabled, custom_id=custom_id, url=url, emoji=emoji, row=row)
+        self.page = page
+        self.max_page = max_page
+
+    async def callback(self, interaction: discord.Interaction) -> Any:
+        self.page = self.page - 1
+        if self.page > 0:
+            prev_button = PrevButton(self.page, self.max_page)
+        else:
+            prev_button = PrevButton(self.page, self.max_page, disabled=True)
+        next_button = NextButton(self.page, self.max_page)
+        view = discord.ui.View()
+        view.add_item(prev_button)
+        view.add_item(next_button)
+        await interaction.response.edit_message(embed=embeds[self.page], view=view)
+
+class NextButton(discord.ui.Button):
+    def __init__(self, page, max_page, *, style: ButtonStyle = ButtonStyle.secondary, label = "Next", disabled: bool = False, custom_id: str | None = None, url: str | None = None, emoji = "➡️", row: int | None = None):
+        super().__init__(style=style, label=label, disabled=disabled, custom_id=custom_id, url=url, emoji=emoji, row=row)
+        self.page = page
+        self.max_page = max_page - 1
+
+    async def callback(self, interaction: discord.Interaction) -> Any:
+        self.page = self.page + 1
+        if self.page < self.max_page:
+            next_button = NextButton(self.page, self.max_page)
+        else:
+            next_button = NextButton(self.page, self.max_page,disabled=True)
+        prev_button = PrevButton(self.page, self.max_page)
+        view = discord.ui.View()
+        view.add_item(prev_button)
+        view.add_item(next_button)
+        await interaction.response.edit_message(embed=embeds[self.page], view=view)
 
 async def setup(bot):
     await bot.add_cog(Youtube(bot))
