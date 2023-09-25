@@ -8,6 +8,7 @@ from discord.ext.commands import Context
 from discord.interactions import Interaction
 from discord.partial_emoji import PartialEmoji
 from googleapiclient.discovery import build
+import asyncio
 import aiohttp
 import feedparser
 import asyncio
@@ -157,7 +158,15 @@ class Youtube(commands.Cog, name="youtube"):
 
     @commands.hybrid_command(name="목록", description="유튜브 채널 목록을 불러옵니다")
     async def channel_list(self, context: Context):
-        await context.send("유튜브 채널 목록을 불러옵니다", delete_after=180)
+        global chunked_channels
+        chunked_channels = [list(youtube_channels.keys())[i:i + 5] for i in range(0, len(youtube_channels), 5)]
+
+        current_page = 0
+
+        msg = await context.send(content=f"유튜브 채널 목록을 불러옵니다 (페이지 {current_page + 1}/{len(chunked_channels)})",view=None)
+
+        global messages
+        messages = []
 
         async def send_list(channel_id):
             channel_name = youtube_channels[channel_id]["channel_name"]
@@ -174,23 +183,116 @@ class Youtube(commands.Cog, name="youtube"):
             view.add_item(button1)
             view.add_item(button2)
 
-            await context.channel.send(embed=embed, view=view, silent=True, delete_after=180)
+            messages.append(await context.channel.send(embed=embed, view=view, silent=True))
 
-        await asyncio.gather(*[send_list(channel_id=channel_id) for channel_id in youtube_channels])
+        for channel_id in chunked_channels[current_page]:
+            await send_list(channel_id)
+
+        view = discord.ui.View()
+        prev_button = PageButton(msg, current_page, "Prev", is_next=False, emoji="⬅️", disabled=True)
+        next_button = PageButton(msg, current_page, "Next", is_next=True, emoji="➡️")
+        delete_button = DeletePageButton(msg=msg)
+        view.add_item(prev_button)
+        view.add_item(next_button)
+        view.add_item(delete_button)
+        await context.channel.send(view=view)
+
+class PageButton(discord.ui.Button):
+    def __init__(self, msg, page, label, is_next, *, style: ButtonStyle = ButtonStyle.secondary, disabled: bool = False, custom_id: str | None = None, url: str | None = None, emoji: str | Emoji | PartialEmoji | None = None, row: int | None = None):
+        super().__init__(style=style, label=label, disabled=disabled, custom_id=custom_id, url=url, emoji=emoji, row=row)
+        self.page = page
+        self.is_next = is_next
+        self.msg = msg
+
+    async def callback(self, interaction: discord.Interaction) -> Any:
+        if self.is_next:
+            self.page = self.page + 1
+        else:
+            self.page = self.page - 1
+
+        await self.msg.edit(content=f"유튜브 채널 목록을 불러옵니다 (페이지 {self.page + 1}/{len(chunked_channels)})", view=None)
+
+        if self.is_next and self.page < len(chunked_channels) - 1:
+            next_button = PageButton(self.msg, self.page, "Next", is_next=True)
+        elif self.is_next:
+            next_button = PageButton(self.msg, self.page, "Next", is_next=True, disabled=True)
+        elif not self.is_next and self.page > 0:
+            prev_button = PageButton(self.msg, self.page, "Prev", is_next=False)
+        else:
+            prev_button = PageButton(self.msg, self.page, "Prev", is_next=False, disabled=True)
+
+        view = discord.ui.View()
+        if self.is_next:
+            prev_button = PageButton(self.msg, self.page, "Prev", is_next=False)
+        elif not self.is_next:
+            next_button = PageButton(self.msg, self.page, "Next", is_next=True)
+        delete_button = DeletePageButton(msg=self.msg)
+        view.add_item(prev_button)
+        view.add_item(next_button)
+        view.add_item(delete_button)
+        await interaction.response.edit_message(content=None,view=view)
+
+        async def edit_list(i, channel_id):
+            channel_name = youtube_channels[channel_id]["channel_name"]
+            channel_description = youtube_channels[channel_id]["channel_description"]
+            channel_image_url = youtube_channels[channel_id]["channel_image_url"]
+
+            embed = discord.Embed(
+                title="",
+                url=f"https://www.youtube.com/channel/{channel_id}",
+                description=channel_description,
+                color=0xff0000
+            )
+            embed.set_author(
+                name=channel_name,
+                url=f"https://www.youtube.com/channel/{channel_id}",
+                icon_url=channel_image_url
+            )
+            embed.set_thumbnail(url=channel_image_url)
+
+            view = discord.ui.View()
+            button1 = VideoButton(custom_id=f"vid_{channel_id}", emoji="✅")
+            button2 = DeleteButton(custom_id=f"del_{channel_id}", emoji="❎")
+            view.add_item(button1)
+            view.add_item(button2)
+
+            await messages[i].edit(embed=embed, view=view)
+
+        empty_embed = discord.Embed(
+            color=0xff0000
+        )
+
+        len_ = len(chunked_channels[self.page])
+        if len_ < 5:
+            for i in range(5 - len_):
+                empty_embed.description = f"{len_ + i + 1}"
+                await messages[len_ + i].edit(content=None, embed=empty_embed, view=None)
+
+        await asyncio.gather(*[edit_list(i, channel_id) for i, channel_id in enumerate(chunked_channels[self.page])])
+
+class DeletePageButton(discord.ui.Button):
+    def __init__(self, msg, *, style: ButtonStyle = ButtonStyle.red, label = "X", disabled: bool = False, custom_id: str | None = None, url: str | None = None, emoji: str | Emoji | PartialEmoji | None = None, row: int | None = None):
+        super().__init__(style=style, label=label, disabled=disabled, custom_id=custom_id, url=url, emoji=emoji, row=row)
+        self.msg = msg
+
+    async def callback(self, interaction: Interaction) -> Any:
+        await interaction.message.delete()
+        await self.msg.delete()
+        await asyncio.gather(*[msg.delete() for msg in messages])
 
 class DeleteButton(discord.ui.Button):
     def __init__(self, *, style: ButtonStyle = ButtonStyle.red, label = "채널삭제", disabled: bool = False, custom_id: str | None = None, url: str | None = None, emoji: str | Emoji | PartialEmoji | None = None, row: int | None = None):
         super().__init__(style=style, label=label, disabled=disabled, custom_id=custom_id, url=url, emoji=emoji, row=row)
 
     async def callback(self, interaction) -> Any:
-        if interaction.user not in [628120124464955392, 1024995328124014673]:
+        if interaction.user in [508138071984832513, 1021753759015116820]:
             message = interaction.message
             await message.delete()
             del youtube_channels[re.search(r"del_(.*)", self.custom_id).group(1)]
             with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f:
                 json.dump(youtube_channels, f, indent=4)
         else:
-            await interaction.response.send_message("쪼또'만' 메시지를 삭제할 권한이 없습니다")
+            await interaction.response.send_message("채널 삭제 권한은 아치양에게만 있습니다", ephemeral=True)
 
 class VideoButton(discord.ui.Button):
     def __init__(self, *, style: ButtonStyle = ButtonStyle.primary, label = "최신영상", disabled: bool = False, custom_id: str | None = None, url: str | None = None, emoji: str | Emoji | PartialEmoji | None = None, row: int | None = None):
@@ -232,48 +334,52 @@ class VideoButton(discord.ui.Button):
 
         max_page = len(embeds)
         page = 0
-        prev_button = PrevButton(page, max_page, disabled=True)
-        next_button = NextButton(page, max_page)
+        prev_button = VideopnButton(page, max_page, is_prev=True, label="Prev", emoji="⬅️", disabled=True)
+        next_button = VideopnButton(page, max_page, is_prev=False, label="Next", emoji="➡️")
+        del_button = DeleteVideoButton()
         view = discord.ui.View()
         view.add_item(prev_button)
         view.add_item(next_button)
+        view.add_item(del_button)
         await interaction.response.send_message(embed=embeds[page], view=view)
 
-class PrevButton(discord.ui.Button):
-    def __init__(self, page, max_page, *, style: ButtonStyle = ButtonStyle.secondary, label = "Prev", disabled: bool = False, custom_id: str | None = None, url: str | None = None, emoji = "⬅️", row: int | None = None):
+class VideopnButton(discord.ui.Button):
+    def __init__(self, page, max_page, is_prev: bool, *, style: ButtonStyle = ButtonStyle.secondary, label: str | None = None, disabled: bool = False, custom_id: str | None = None, url: str | None = None, emoji: str | Emoji | PartialEmoji | None = None, row: int | None = None):
         super().__init__(style=style, label=label, disabled=disabled, custom_id=custom_id, url=url, emoji=emoji, row=row)
         self.page = page
         self.max_page = max_page
+        self.is_prev = is_prev
 
     async def callback(self, interaction: discord.Interaction) -> Any:
         self.page = self.page - 1
-        if self.page > 0:
-            prev_button = PrevButton(self.page, self.max_page)
+
+        if self.is_prev and self.page > 0:
+            prev_button = VideopnButton(self.page, self.max_page, is_prev=True, label="Prev", emoji="⬅️")
+        elif self.is_prev:
+            prev_button = VideopnButton(self.page, self.max_page, is_prev=True, label="Prev", emoji="⬅️", disabled=True)
+        elif not self.is_prev and self.page < self.max_page - 1:
+            next_button = VideopnButton(self.page, self.max_page, is_prev=False, label="Next", emoji="➡️")
         else:
-            prev_button = PrevButton(self.page, self.max_page, disabled=True)
-        next_button = NextButton(self.page, self.max_page)
+            next_button = VideopnButton(self.page, self.max_page, is_prev=False, label="Next", emoji="➡️", disabled=True)
+
+        if self.is_prev:
+            next_button = VideopnButton(self.page, self.max_page, is_prev=False, label="Next", emoji="➡️")
+        else:
+            prev_button = VideopnButton(self.page, self.max_page, is_prev=True, label="Prev", emoji="⬅️")
+
+        del_button = DeleteVideoButton()
         view = discord.ui.View()
         view.add_item(prev_button)
         view.add_item(next_button)
+        view.add_item(del_button)
         await interaction.response.edit_message(embed=embeds[self.page], view=view)
 
-class NextButton(discord.ui.Button):
-    def __init__(self, page, max_page, *, style: ButtonStyle = ButtonStyle.secondary, label = "Next", disabled: bool = False, custom_id: str | None = None, url: str | None = None, emoji = "➡️", row: int | None = None):
+class DeleteVideoButton(discord.ui.Button):
+    def __init__(self, *, style: ButtonStyle = ButtonStyle.red, label = "X", disabled: bool = False, custom_id: str | None = None, url: str | None = None, emoji: str | Emoji | PartialEmoji | None = None, row: int | None = None):
         super().__init__(style=style, label=label, disabled=disabled, custom_id=custom_id, url=url, emoji=emoji, row=row)
-        self.page = page
-        self.max_page = max_page - 1
 
-    async def callback(self, interaction: discord.Interaction) -> Any:
-        self.page = self.page + 1
-        if self.page < self.max_page:
-            next_button = NextButton(self.page, self.max_page)
-        else:
-            next_button = NextButton(self.page, self.max_page,disabled=True)
-        prev_button = PrevButton(self.page, self.max_page)
-        view = discord.ui.View()
-        view.add_item(prev_button)
-        view.add_item(next_button)
-        await interaction.response.edit_message(embed=embeds[self.page], view=view)
+    async def callback(self, interaction: Interaction) -> Any:
+        await interaction.message.delete()
 
 async def setup(bot):
     await bot.add_cog(Youtube(bot))
