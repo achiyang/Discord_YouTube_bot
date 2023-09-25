@@ -361,7 +361,10 @@ class VideopnButton(discord.ui.Button):
         self.is_prev = is_prev
 
     async def callback(self, interaction: discord.Interaction) -> Any:
-        self.page = self.page - 1
+        if self.is_prev:
+            self.page = self.page - 1
+        else:
+            self.page = self.page + 1
 
         if self.is_prev and self.page > 0:
             prev_button = VideopnButton(self.page, self.max_page, is_prev=True, label="Prev", emoji="⬅️")
