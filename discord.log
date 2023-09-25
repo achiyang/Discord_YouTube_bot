@@ -1,81 +1,8 @@
-[2023-09-25 13:42:40] [INFO    ] discord_bot: Logged in as 유튜브 링크봇
-[2023-09-25 13:42:40] [INFO    ] discord_bot: discord.py API version: 2.3.2
-[2023-09-25 13:42:40] [INFO    ] discord_bot: Python version: 3.10.11
-[2023-09-25 13:42:40] [INFO    ] discord_bot: Running on: Windows 10 (nt)
-[2023-09-25 13:42:40] [INFO    ] discord_bot: Loaded extension 'commands'
-[2023-09-25 13:42:40] [INFO    ] discord_bot: Loaded extension 'test'
-[2023-09-25 13:42:40] [INFO    ] discord_bot: Loaded extension 'youtube'
-[2023-09-25 13:42:41] [INFO    ] discord_bot: -------------------
-[2023-09-25 13:43:02] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 13:46:27] [INFO    ] discord_bot: Loaded extension 'commands'
-[2023-09-25 13:46:27] [INFO    ] discord_bot: Loaded extension 'test'
-[2023-09-25 13:46:27] [INFO    ] discord_bot: Loaded extension 'youtube'
-[2023-09-25 13:46:28] [INFO    ] discord_bot: Executed 업데이트 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 13:46:35] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 13:48:30] [INFO    ] discord_bot: Loaded extension 'commands'
-[2023-09-25 13:48:30] [INFO    ] discord_bot: Loaded extension 'test'
-[2023-09-25 13:48:30] [INFO    ] discord_bot: Loaded extension 'youtube'
-[2023-09-25 13:48:33] [INFO    ] discord_bot: Executed 업데이트 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 13:48:41] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 13:49:16] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 13:52:47] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by jjoddoumi (ID: 628120124464955392)
-[2023-09-25 13:54:28] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 13:56:03] [INFO    ] discord_bot: Loaded extension 'commands'
-[2023-09-25 13:56:03] [INFO    ] discord_bot: Loaded extension 'test'
-[2023-09-25 13:56:03] [INFO    ] discord_bot: Loaded extension 'youtube'
-[2023-09-25 13:56:46] [INFO    ] discord_bot: Loaded extension 'commands'
-[2023-09-25 13:56:46] [INFO    ] discord_bot: Loaded extension 'test'
-[2023-09-25 13:56:46] [INFO    ] discord_bot: Loaded extension 'youtube'
-[2023-09-25 13:56:50] [INFO    ] discord_bot: Executed 업데이트 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 13:57:02] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:01:12] [INFO    ] discord_bot: Loaded extension 'commands'
-[2023-09-25 14:01:12] [INFO    ] discord_bot: Loaded extension 'test'
-[2023-09-25 14:01:12] [INFO    ] discord_bot: Loaded extension 'youtube'
-[2023-09-25 14:01:14] [INFO    ] discord_bot: Executed 업데이트 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:02:33] [INFO    ] discord_bot: Loaded extension 'commands'
-[2023-09-25 14:02:33] [INFO    ] discord_bot: Loaded extension 'test'
-[2023-09-25 14:02:33] [INFO    ] discord_bot: Loaded extension 'youtube'
-[2023-09-25 14:02:36] [INFO    ] discord_bot: Executed 업데이트 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:02:43] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:02:59] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:04:41] [INFO    ] discord_bot: Loaded extension 'commands'
-[2023-09-25 14:04:41] [INFO    ] discord_bot: Loaded extension 'test'
-[2023-09-25 14:04:41] [INFO    ] discord_bot: Loaded extension 'youtube'
-[2023-09-25 14:04:43] [INFO    ] discord_bot: Executed 업데이트 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:04:49] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:05:33] [INFO    ] discord_bot: Loaded extension 'commands'
-[2023-09-25 14:05:33] [INFO    ] discord_bot: Loaded extension 'test'
-[2023-09-25 14:05:33] [INFO    ] discord_bot: Loaded extension 'youtube'
-[2023-09-25 14:05:35] [INFO    ] discord_bot: Executed 업데이트 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:05:42] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:06:11] [INFO    ] discord_bot: Loaded extension 'commands'
-[2023-09-25 14:06:11] [INFO    ] discord_bot: Loaded extension 'test'
-[2023-09-25 14:06:11] [INFO    ] discord_bot: Loaded extension 'youtube'
-[2023-09-25 14:06:14] [INFO    ] discord_bot: Executed 업데이트 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:06:18] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:06:58] [INFO    ] discord_bot: Loaded extension 'commands'
-[2023-09-25 14:06:58] [INFO    ] discord_bot: Loaded extension 'test'
-[2023-09-25 14:06:58] [INFO    ] discord_bot: Loaded extension 'youtube'
-[2023-09-25 14:07:01] [INFO    ] discord_bot: Executed 업데이트 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:07:05] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:07:41] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:07:58] [INFO    ] discord_bot: Loaded extension 'commands'
-[2023-09-25 14:07:59] [INFO    ] discord_bot: Loaded extension 'test'
-[2023-09-25 14:07:59] [INFO    ] discord_bot: Loaded extension 'youtube'
-[2023-09-25 14:08:00] [INFO    ] discord_bot: Executed 업데이트 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:08:04] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:10:33] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by jjoddoumi (ID: 628120124464955392)
-[2023-09-25 14:11:10] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by jjoddoumi (ID: 628120124464955392)
-[2023-09-25 14:11:48] [INFO    ] discord_bot: Loaded extension 'commands'
-[2023-09-25 14:11:48] [INFO    ] discord_bot: Loaded extension 'test'
-[2023-09-25 14:11:48] [INFO    ] discord_bot: Loaded extension 'youtube'
-[2023-09-25 14:11:50] [INFO    ] discord_bot: Executed 업데이트 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:12:25] [INFO    ] discord_bot: Loaded extension 'commands'
-[2023-09-25 14:12:25] [INFO    ] discord_bot: Loaded extension 'test'
-[2023-09-25 14:12:25] [INFO    ] discord_bot: Loaded extension 'youtube'
-[2023-09-25 14:12:27] [INFO    ] discord_bot: Executed 업데이트 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:12:33] [INFO    ] discord_bot: Executed modaltest command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-09-25 14:15:05] [INFO    ] discord_bot: Loaded extension 'commands'
-[2023-09-25 14:15:05] [INFO    ] discord_bot: Loaded extension 'test'
-[2023-09-25 14:15:05] [INFO    ] discord_bot: Loaded extension 'youtube'
-[2023-09-25 14:15:09] [INFO    ] discord_bot: Executed 업데이트 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
+[2023-09-25 16:29:16] [INFO    ] discord_bot: Logged in as 유튜브 링크봇
+[2023-09-25 16:29:16] [INFO    ] discord_bot: discord.py API version: 2.3.2
+[2023-09-25 16:29:16] [INFO    ] discord_bot: Python version: 3.10.11
+[2023-09-25 16:29:16] [INFO    ] discord_bot: Running on: Windows 10 (nt)
+[2023-09-25 16:29:16] [INFO    ] discord_bot: Loaded extension 'commands'
+[2023-09-25 16:29:17] [INFO    ] discord_bot: Loaded extension 'youtube'
+[2023-09-25 16:29:17] [INFO    ] discord_bot: -------------------
+[2023-09-25 16:30:59] [INFO    ] discord_bot: Executed 목록 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)

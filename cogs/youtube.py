@@ -1,7 +1,12 @@
+from typing import Any, Optional, Union
 import discord
 from discord import app_commands
+from discord.emoji import Emoji
+from discord.enums import ButtonStyle
 from discord.ext import commands, tasks
 from discord.ext.commands import Context
+from discord.interactions import Interaction
+from discord.partial_emoji import PartialEmoji
 from googleapiclient.discovery import build
 import aiohttp
 import feedparser
@@ -148,6 +153,41 @@ class Youtube(commands.Cog, name="youtube"):
                 if reaction.emoji == '❎':
                     await sent_message.delete()
                     await context.send("채널 추가를 취소합니다")
+
+    @commands.hybrid_command(name="목록", description="유튜브 채널 목록을 불러옵니다")
+    async def channel_list(self, context: Context):
+        await context.send("유튜브 채널 목록을 불러왔습니다")
+
+        async def send_list(channel_id):
+            channel_name = youtube_channels[channel_id]["channel_name"]
+            channel_description = youtube_channels[channel_id]["channel_description"]
+            channel_image_url = youtube_channels[channel_id]["channel_image_url"]
+
+            embed=discord.Embed(title="", url=f"https://www.youtube.com/channel/{channel_id}", description=channel_description, color=0xff0000)
+            embed.set_author(name=channel_name, url=f"https://www.youtube.com/channel/{channel_id}", icon_url=channel_image_url)
+            embed.set_thumbnail(url=channel_image_url)
+
+            view = discord.ui.View()
+            button = DeleteButton(custom_id=channel_id, emoji="❌")
+            view.add_item(button)
+
+            await context.channel.send(embed=embed, view=view, silent=True)
+
+        await asyncio.gather(*[send_list(channel_id=channel_id) for channel_id in youtube_channels])
+
+class DeleteButton(discord.ui.Button):
+    def __init__(self, *, style: ButtonStyle = ButtonStyle.red, label = "채널삭제", disabled: bool = False, custom_id: str | None = None, url: str | None = None, emoji: str | Emoji | PartialEmoji | None = None, row: int | None = None):
+        super().__init__(style=style, label=label, disabled=disabled, custom_id=custom_id, url=url, emoji=emoji, row=row)
+
+    async def callback(self, interaction) -> Any:
+        if interaction.user != interaction.message.author:
+            await interaction.response.send_message("너가 왜 삭제합니까...", ephemeral=True)
+            return
+        message = interaction.message
+        await message.delete()
+        del youtube_channels[self.custom_id]
+        with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f:
+            json.dump(youtube_channels, f, indent=4)
 
 async def setup(bot):
     await bot.add_cog(Youtube(bot))
