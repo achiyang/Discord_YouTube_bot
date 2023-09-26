@@ -5,3 +5,9 @@
 [2023-09-26 20:58:40] [INFO    ] discord_bot: Loaded extension 'commands'
 [2023-09-26 20:58:40] [INFO    ] discord_bot: Loaded extension 'youtube'
 [2023-09-26 20:58:41] [INFO    ] discord_bot: -------------------
+[2023-09-26 21:00:14] [ERROR   ] discord_bot: Failed to load extension commands
+AttributeError: 'DiscordBot' object has no attribute 'bot'
+[2023-09-26 21:00:14] [ERROR   ] discord_bot: Failed to load extension youtube
+AttributeError: 'DiscordBot' object has no attribute 'bot'
+[2023-09-26 21:00:14] [INFO    ] discord_bot: Executed 업데이트 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
+[2023-09-26 21:00:42] [INFO    ] discord_bot: Executed 목록 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
