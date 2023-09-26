@@ -91,10 +91,17 @@
         "channel_description": "\ub9c8\uc2a4\ud130 \uc6d0\ub51c(\ube44\uc2a4\ubb34\ub9ac\ud55c\ucc54\ud53c\uc5b8),\ubbf8\ub4dc\ub920\uc774\ub108 \uadf8\ub9bc\uadf8\ub9ac\ub294 \uac78 \uc88b\uc544\ud574\uc694 '~'"
     },
     "UC3_itH2KcrB1giRf05y6N6A": {
-        "latest_video_id": "lmIv7X38WGY",
-        "second_video_id": null,
+        "latest_video_id": "Op565e3CWUI",
+        "second_video_id": "lmIv7X38WGY",
         "channel_name": "\uc544\ub9ac\ub79127",
         "channel_image_url": "https://yt3.ggpht.com/ytc/APkrFKZitQf2gTu_J343h32BVVoBAKxuCwPlrk42DF9nr1_Kkg=s88-c-k-c0xffffffff-no-rj-mo",
         "channel_description": ""
+    },
+    "UC_fYA9QRK-aJnFTgvR_4zug": {
+        "latest_video_id": "p4MvFTSUk5g",
+        "second_video_id": null,
+        "channel_name": "\u306a\u306a\u3072\u3089 / Nanahira",
+        "channel_image_url": "https://yt3.ggpht.com/93qHwkbakpxUYdG4fwiz1JhJ1DalaGzped2JUo5MMpmkNNT1OvUMxfR_kwe3AKO_BKrC4mH55w=s88-c-k-c0xffffffff-no-rj-mo",
+        "channel_description": "\u306a\u306a\u3072\u3089\u3067\u3059\u3002 \u52d5\u753b\u3084\u97f3\u6e90\u306e\u7121\u65ad\u8ee2\u8f09\u306f\u3054\u9060\u616e\u304f\u3060\u3055\u3044\u3002 Please do not reprint videos posted on this channel. \u304a\u554f\u3044\u5408\u308f\u305b ..."
     }
 }
