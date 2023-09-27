@@ -350,7 +350,7 @@ class VideoButton(discord.ui.Button):
         view.add_item(prev_button)
         view.add_item(next_button)
         view.add_item(del_button)
-        await interaction.response.send_message(embed=embeds[page], view=view, silent=True)
+        await interaction.response.send_message(content=f"{page+1}/{max_page}" ,embed=embeds[page], view=view, silent=True)
 
 class VideopnButton(discord.ui.Button):
     def __init__(self, page, max_page, is_prev: bool, *, style: ButtonStyle = ButtonStyle.secondary, label: str | None = None, disabled: bool = False, custom_id: str | None = None, url: str | None = None, emoji: str | Emoji | PartialEmoji | None = None, row: int | None = None):
@@ -384,7 +384,7 @@ class VideopnButton(discord.ui.Button):
         view.add_item(prev_button)
         view.add_item(next_button)
         view.add_item(del_button)
-        await interaction.response.edit_message(embed=embeds[self.page], view=view)
+        await interaction.response.edit_message(content=f"{self.page+1}/{self.max_page}" ,embed=embeds[self.page], view=view)
 
 class DeleteVideoButton(discord.ui.Button):
     def __init__(self, *, style: ButtonStyle = ButtonStyle.red, label = "X", disabled: bool = False, custom_id: str | None = None, url: str | None = None, emoji: str | Emoji | PartialEmoji | None = None, row: int | None = None):
