@@ -30,7 +30,7 @@ class Youtube(commands.Cog, name="youtube"):
             notification_channel = await self.bot.fetch_channel(int(notification_channel_id))
             await notification_channel.send(video_url)
 
-    async def fetch_youtube_video(self, channel_id):
+    async def fetch_youtube_video(self, channel_id, count: int = 0):
         async with aiohttp.ClientSession() as session:
             async with session.get(f'https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}') as response:
                 if response.status == 200:
@@ -38,8 +38,11 @@ class Youtube(commands.Cog, name="youtube"):
                     feed = await asyncio.to_thread(feedparser.parse, data)
                     video_id = feed["entries"][0]["yt_videoid"]
                     return video_id
+                elif count < 2:
+                    return await self.fetch_youtube_video(channel_id, count + 1)
                 else:
-                    await None
+                    del youtube_channels[channel_id]
+                    return None
 
     async def check_youtube(self, channel_id):
         video_id = await self.fetch_youtube_video(channel_id)
