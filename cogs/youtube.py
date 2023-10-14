@@ -365,6 +365,10 @@ class VideopnButton(discord.ui.Button):
         self.page = page
         self.max_page = max_page
         self.is_prev = is_prev
+        if is_prev:
+            self.emoji = "⬅️"
+        else:
+            self.emoji = "➡️"
 
     async def callback(self, interaction: discord.Interaction) -> Any:
         if self.is_prev:
@@ -373,18 +377,18 @@ class VideopnButton(discord.ui.Button):
             self.page = self.page + 1
 
         if self.is_prev and self.page > 0:
-            prev_button = VideopnButton(self.page, self.max_page, is_prev=True, label="Prev", emoji="⬅️")
+            prev_button = VideopnButton(self.page, self.max_page, is_prev=True, label="Prev")
         elif self.is_prev:
-            prev_button = VideopnButton(self.page, self.max_page, is_prev=True, label="Prev", emoji="⬅️", disabled=True)
+            prev_button = VideopnButton(self.page, self.max_page, is_prev=True, label="Prev", disabled=True)
         elif not self.is_prev and self.page < self.max_page - 1:
-            next_button = VideopnButton(self.page, self.max_page, is_prev=False, label="Next", emoji="➡️")
+            next_button = VideopnButton(self.page, self.max_page, is_prev=False, label="Next")
         else:
-            next_button = VideopnButton(self.page, self.max_page, is_prev=False, label="Next", emoji="➡️", disabled=True)
+            next_button = VideopnButton(self.page, self.max_page, is_prev=False, label="Next", disabled=True)
 
         if self.is_prev:
-            next_button = VideopnButton(self.page, self.max_page, is_prev=False, label="Next", emoji="➡️")
+            next_button = VideopnButton(self.page, self.max_page, is_prev=False, label="Next")
         else:
-            prev_button = VideopnButton(self.page, self.max_page, is_prev=True, label="Prev", emoji="⬅️")
+            prev_button = VideopnButton(self.page, self.max_page, is_prev=True, label="Prev")
 
         del_button = DeleteVideoButton()
         view = discord.ui.View()
