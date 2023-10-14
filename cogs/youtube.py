@@ -32,7 +32,7 @@ class Youtube(commands.Cog, name="youtube"):
 
     async def fetch_youtube_video(self, channel_id, count: int = 0):
         async with aiohttp.ClientSession() as session:
-            async with session.get(f'https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}') as response:
+            async with session.get(f'https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}', allow_redirects=True) as response:
                 if response.status == 200:
                     data = await response.text()
                     feed = await asyncio.to_thread(feedparser.parse, data)
@@ -41,12 +41,11 @@ class Youtube(commands.Cog, name="youtube"):
                 elif count < 2:
                     return await self.fetch_youtube_video(channel_id, count + 1)
                 else:
-                    del youtube_channels[channel_id]
                     return None
 
     async def check_youtube(self, channel_id):
         video_id = await self.fetch_youtube_video(channel_id)
-        if video_id:
+        if video_id != None:
             latest_video_id = youtube_channels[channel_id]["latest_video_id"]
             second_video_id = youtube_channels[channel_id]["second_video_id"]
 
