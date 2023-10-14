@@ -6,11 +6,11 @@ class Commands(commands.Cog, name='commands'):
         self.bot = bot
 
     async def cog_check(self, context: Context) -> bool:
-        if context.author.id not in [508138071984832513, 1021753759015116820]:
+        if context.author.id in [508138071984832513, 1021753759015116820]:
+            return True
+        else:
             await context.send("이 명령어를 사용할 권한이 없습니다")
             return False
-        else:
-            return True
 
     @commands.hybrid_command(name="업데이트", description="봇을 업데이트합니다")
     async def update(self, context: Context):
