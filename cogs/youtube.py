@@ -205,6 +205,10 @@ class PageButton(discord.ui.Button):
         self.page = page
         self.is_next = is_next
         self.msg = msg
+        if is_next:
+            emoji = "➡️"
+        else:
+            emoji = "⬅️"
 
     async def callback(self, interaction: discord.Interaction) -> Any:
         if self.is_next:
