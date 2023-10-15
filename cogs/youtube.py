@@ -52,7 +52,7 @@ class Youtube(commands.Cog, name="youtube"):
         video_ids = await self.fetch_youtube_video(channel_id)
         if video_ids != None:
             await asyncio.gather(*[self.send_new_video_link(video_id) for video_id in video_ids])
-            youtube_channels[channel_id]["video_id"].extend(video_ids)
+            youtube_channels[channel_id]["video_id"] = video_ids + youtube_channels[channel_id]["video_id"]
             with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f : 
                 json.dump(youtube_channels, f, indent=4)
 
