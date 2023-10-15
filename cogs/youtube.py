@@ -319,7 +319,7 @@ class VideoButton(discord.ui.Button):
             channel_icon_url = youtube_channels[channel_id]["channel_image_url"]
             video_title = video["title"]
             video_url = video["link"]
-            video_thumbnail_url = video["media_thumbnail"][0]["url"]
+            video_thumbnail_url = video["media_thumbnail"][0]["url"].replace("hqdefault", "maxresdefault")
 
             embed = discord.Embed(
                 title=video_title,
