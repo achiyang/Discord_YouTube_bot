@@ -38,9 +38,10 @@ class Youtube(commands.Cog, name="youtube"):
                     data = await response.text()
                     feed = await asyncio.to_thread(feedparser.parse, data)
                     for i in range(len(feed["entries"])):
-                        if i > 1:
+                        video_id = feed["entries"][i]["yt_videoid"]
+                        if video_id in youtube_channels[channel_id]["video_id"]:
                             break
-                        video_ids.append(feed["entries"][i]["yt_videoid"])
+                        video_ids.append(video_id)
                     return video_ids
                 elif count < 2:
                     return await self.fetch_youtube_video(channel_id, count + 1)
@@ -50,17 +51,8 @@ class Youtube(commands.Cog, name="youtube"):
     async def check_youtube(self, channel_id):
         video_ids = await self.fetch_youtube_video(channel_id)
         if video_ids != None:
-            video_ids.reverse()
-            for video_id in video_ids:
-                latest_video_id = youtube_channels[channel_id]["latest_video_id"]
-                second_video_id = youtube_channels[channel_id]["second_video_id"]
-
-                if latest_video_id is None or (video_id not in [latest_video_id, second_video_id]):
-                    second_video_id = latest_video_id
-                    latest_video_id = video_id
-                    youtube_channels[channel_id]['latest_video_id'] = latest_video_id
-                    youtube_channels[channel_id]['second_video_id'] = second_video_id
-                    await self.send_new_video_link(video_id)
+            await asyncio.gather(*[self.send_new_video_link(video_id) for video_id in video_ids])
+            youtube_channels[channel_id]["video_id"].extend(video_ids)
             with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f : 
                 json.dump(youtube_channels, f, indent=4)
 
@@ -148,8 +140,7 @@ class Youtube(commands.Cog, name="youtube"):
                     channel_id = str(channel['id']['channelId'])
                     if channel_id not in youtube_channels:
                         youtube_channels[channel_id] = {
-                            "latest_video_id": None,
-                            "second_video_id": None,
+                            "video_id": [],
                             "channel_name": channel_names[selected_value],
                             "channel_image_url": channel_image_urls[selected_value],
                             "channel_description": channel_descriptions[selected_value]
