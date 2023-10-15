@@ -49,8 +49,8 @@ class Youtube(commands.Cog, name="youtube"):
 
     async def check_youtube(self, channel_id):
         video_ids = await self.fetch_youtube_video(channel_id)
-        for video_id in video_ids:
-            if video_id != None:
+        if video_id != None:
+            for video_id in video_ids:
                 latest_video_id = youtube_channels[channel_id]["latest_video_id"]
                 second_video_id = youtube_channels[channel_id]["second_video_id"]
 
@@ -60,8 +60,8 @@ class Youtube(commands.Cog, name="youtube"):
                     youtube_channels[channel_id]['latest_video_id'] = latest_video_id
                     youtube_channels[channel_id]['second_video_id'] = second_video_id
                     await self.send_new_video_link(video_id)
-                    with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f : 
-                        json.dump(youtube_channels, f, indent=4)
+            with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f : 
+                json.dump(youtube_channels, f, indent=4)
 
     @tasks.loop(minutes=1.0)
     async def loop_check(self):
