@@ -51,15 +51,15 @@ class Youtube(commands.Cog, name="youtube"):
     async def check_youtube(self, channel_id):
         video_ids = await self.fetch_youtube_video(channel_id)
         if video_ids != None:
-            await asyncio.gather(*[self.send_new_video_link(video_id) for video_id in video_ids])
+            for video_id in video_ids:
+                await self.send_new_video_link(video_id)
             youtube_channels[channel_id]["video_id"] = video_ids + youtube_channels[channel_id]["video_id"]
             with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f : 
                 json.dump(youtube_channels, f, indent=4)
 
     @tasks.loop(minutes=1.0)
     async def loop_check(self):
-        for channel_id in youtube_channels:
-            await self.check_youtube(channel_id)
+        await asyncio.gather(*[self.check_youtube(channel_id) for channel_id in youtube_channels])
 
     @loop_check.before_loop
     async def before_loop_check(self):
