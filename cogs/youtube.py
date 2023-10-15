@@ -58,7 +58,8 @@ class Youtube(commands.Cog, name="youtube"):
 
     @tasks.loop(minutes=1.0)
     async def loop_check(self):
-        await asyncio.gather(*[self.check_youtube(channel_id) for channel_id in youtube_channels])
+        for channel_id in youtube_channels:
+            await self.check_youtube(channel_id)
 
     @loop_check.before_loop
     async def before_loop_check(self):
