@@ -49,7 +49,8 @@ class Youtube(commands.Cog, name="youtube"):
 
     async def check_youtube(self, channel_id):
         video_ids = await self.fetch_youtube_video(channel_id)
-        if video_id != None:
+        if video_ids != None:
+            video_ids.reverse()
             for video_id in video_ids:
                 latest_video_id = youtube_channels[channel_id]["latest_video_id"]
                 second_video_id = youtube_channels[channel_id]["second_video_id"]
