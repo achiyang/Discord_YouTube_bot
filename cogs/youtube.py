@@ -40,11 +40,11 @@ class Youtube(commands.Cog, name="youtube"):
                     feed = await asyncio.to_thread(feedparser.parse, data)
                     for i in range(len(feed["entries"])):
                         video_id = feed["entries"][i]["yt_videoid"]
-                        if feed["entries"][i]["updated_parsed"]:
-                            updated = feed["entries"][i]["updated_parsed"]
+                        if feed["entries"][i]["updated"]:
+                            updated = feed["entries"][i]["updated"]
                             video_ids[video_id] = updated
                         else:
-                            published = feed["entries"][i]["published_parsed"]
+                            published = feed["entries"][i]["published"]
                             video_ids[video_id] = published
                     return video_ids
                 elif count < 2:
