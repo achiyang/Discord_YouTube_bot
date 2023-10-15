@@ -13,8 +13,8 @@ async def fetch_youtube_video(channel_id, count: int = 0) -> dict | None:
                 feed = await asyncio.to_thread(feedparser.parse, data)
                 for i in range(len(feed["entries"])):
                     video_id = feed["entries"][i]["yt_videoid"]
-                    if feed["entries"][i]["published_parsed"]:
-                        updated = feed["entries"][i]["published_parsed"]
+                    if feed["entries"][i]["updated_parsed"]:
+                        updated = feed["entries"][i]["updated_parsed"]
                         video_ids[video_id] = updated
                     else:
                         published = feed["entries"][i]["published_parsed"]
