@@ -30,33 +30,38 @@ class Youtube(commands.Cog, name="youtube"):
             notification_channel = await self.bot.fetch_channel(int(notification_channel_id))
             await notification_channel.send(video_url)
 
-    async def fetch_youtube_video(self, channel_id, count: int = 0):
+    async def fetch_youtube_video(self, channel_id, count: int = 0) -> list | None:
         async with aiohttp.ClientSession() as session:
             async with session.get(f'https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}', allow_redirects=True) as response:
                 if response.status == 200:
+                    video_ids = []
                     data = await response.text()
                     feed = await asyncio.to_thread(feedparser.parse, data)
-                    video_id = feed["entries"][0]["yt_videoid"]
-                    return video_id
+                    for i in range(len(feed["entries"])):
+                        if i > 1:
+                            break
+                        video_ids.append(feed["entries"][i]["yt_videoid"])
+                    return video_ids
                 elif count < 2:
                     return await self.fetch_youtube_video(channel_id, count + 1)
                 else:
                     return None
 
     async def check_youtube(self, channel_id):
-        video_id = await self.fetch_youtube_video(channel_id)
-        if video_id != None:
-            latest_video_id = youtube_channels[channel_id]["latest_video_id"]
-            second_video_id = youtube_channels[channel_id]["second_video_id"]
+        video_ids = await self.fetch_youtube_video(channel_id)
+        for video_id in video_ids:
+            if video_id != None:
+                latest_video_id = youtube_channels[channel_id]["latest_video_id"]
+                second_video_id = youtube_channels[channel_id]["second_video_id"]
 
-            if latest_video_id is None or (video_id not in [latest_video_id, second_video_id]):
-                second_video_id = latest_video_id
-                latest_video_id = video_id
-                youtube_channels[channel_id]['latest_video_id'] = latest_video_id
-                youtube_channels[channel_id]['second_video_id'] = second_video_id
-                await self.send_new_video_link(video_id)
-                with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f : 
-                    json.dump(youtube_channels, f, indent=4)
+                if latest_video_id is None or (video_id not in [latest_video_id, second_video_id]):
+                    second_video_id = latest_video_id
+                    latest_video_id = video_id
+                    youtube_channels[channel_id]['latest_video_id'] = latest_video_id
+                    youtube_channels[channel_id]['second_video_id'] = second_video_id
+                    await self.send_new_video_link(video_id)
+                    with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f : 
+                        json.dump(youtube_channels, f, indent=4)
 
     @tasks.loop(minutes=1.0)
     async def loop_check(self):
