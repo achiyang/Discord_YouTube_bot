@@ -26,9 +26,9 @@ class Youtube(commands.Cog, name="youtube"):
 
     async def send_new_video_link(self, video_id):
         video_url = f'https://youtu.be/{video_id}'
-        for notification_channel_id in notification_channels:
-            notification_channel = await self.bot.fetch_channel(int(notification_channel_id))
-            await notification_channel.send(video_url)
+        notification_channel_id = 1133945327360168088
+        notification_channel = await self.bot.fetch_channel(notification_channel_id)
+        await notification_channel.send(video_url)
 
     async def fetch_youtube_video(self, channel_id, count: int = 0) -> list | None:
         async with aiohttp.ClientSession() as session:
@@ -63,22 +63,12 @@ class Youtube(commands.Cog, name="youtube"):
 
     @loop_check.before_loop
     async def before_loop_check(self):
-        global youtube_channels, notification_channels
+        global youtube_channels
         with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "r") as f:
             youtube_channels = json.load(f)
-        with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/notification_channels.json", "r") as f:
-            notification_channels = json.load(f)
 
     async def cog_load(self):
         self.loop_check.start()
-
-    @commands.hybrid_command(name="채널", description="새 영상 알림을 받을 디스코드 채널을 추가합니다")
-    @app_commands.describe(channel_id="알림을 받을 디스코드 채널의 ID를 입력해주세요")
-    async def add_discord_channel(self, context: Context, channel_id: str):
-        notification_channels.append(channel_id)
-        with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/notification_channels.json", "w") as f:
-            json.dump(notification_channels, f, indent=4)
-        await context.send("알림을 보낼 디스코드 채널을 추가했습니다", silent=True)
 
     @commands.hybrid_command(name='알림', description='알림을 받을 유튜브 채널을 추가합니다')
     @app_commands.describe(search='알림을 받을 유튜브 채널을 입력하세요')
