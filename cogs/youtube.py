@@ -40,7 +40,6 @@ class Youtube(commands.Cog, name="youtube"):
                     feed = await asyncio.to_thread(feedparser.parse, data)
                     for i in range(len(feed["entries"])):
                         video_id = feed["entries"][i]["yt_videoid"]
-                        title = feed["entries"][i]["title"]
                         published = feed["entries"][i]["published"]
                         if feed["entries"][i]["updated"]:
                             updated = feed["entries"][i]["updated"]
@@ -48,7 +47,6 @@ class Youtube(commands.Cog, name="youtube"):
                             updated = ""
                         views = feed["entries"][i]["media_statistics"]["views"]
                         video_ids[video_id] = {
-                            "title": title,
                             "published": published,
                             "updated": updated,
                             "views": views
@@ -65,6 +63,10 @@ class Youtube(commands.Cog, name="youtube"):
             for video_id in video_ids:
                 if video_id not in youtube_channels[channel_id]["video_id"]:
                     await self.send_new_video_link(video_id)
+                else:
+                    if youtube_channels[channel_id]["video_id"][video_id]["views"] == "0":
+                        if video_ids[video_id]["views"] != "0":
+                            await self.send_new_video_link(video_id)
                 youtube_channels[channel_id]["video_id"][video_id] = video_ids[video_id]
             with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f : 
                 json.dump(youtube_channels, f, indent=4)
