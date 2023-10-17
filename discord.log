@@ -1,10 +1,7 @@
-[2023-10-17 18:32:08] [INFO    ] discord_bot: Logged in as 유튜브 링크봇
-[2023-10-17 18:32:08] [INFO    ] discord_bot: discord.py API version: 2.3.2
-[2023-10-17 18:32:08] [INFO    ] discord_bot: Python version: 3.10.11
-[2023-10-17 18:32:08] [INFO    ] discord_bot: Running on: Windows 10 (nt)
-[2023-10-17 18:32:08] [INFO    ] discord_bot: Loaded extension 'commands'
-[2023-10-17 18:32:09] [INFO    ] discord_bot: Loaded extension 'youtube'
-[2023-10-17 18:32:09] [INFO    ] discord_bot: -------------------
-[2023-10-17 18:32:33] [INFO    ] discord_bot: Executed 알림 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-10-17 18:33:06] [INFO    ] discord_bot: Executed 목록 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
-[2023-10-17 18:33:38] [INFO    ] discord_bot: Executed 알림 command in 겐신 임팩또! (ID: 961457745612124161) by achi_yang (ID: 508138071984832513)
+[2023-10-17 18:43:54] [INFO    ] discord_bot: Logged in as 유튜브 링크봇
+[2023-10-17 18:43:54] [INFO    ] discord_bot: discord.py API version: 2.3.2
+[2023-10-17 18:43:54] [INFO    ] discord_bot: Python version: 3.10.11
+[2023-10-17 18:43:54] [INFO    ] discord_bot: Running on: Windows 10 (nt)
+[2023-10-17 18:43:54] [INFO    ] discord_bot: Loaded extension 'commands'
+[2023-10-17 18:43:54] [INFO    ] discord_bot: Loaded extension 'youtube'
+[2023-10-17 18:43:55] [INFO    ] discord_bot: -------------------

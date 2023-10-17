@@ -1,15 +1,9 @@
 import json
+import requests
+import feedparser
 
-with open("data/youtube_channels.json", "r")as f:
-    youtube_chhannels = json.load(f)
+response = requests.request("GET", "https://www.youtube.com/feeds/videos.xml?channel_id=UC1iA6_NT4mtAcIII6ygrvCw", allow_redirects=True)
+parse = feedparser.parse(response.text)
 
-for channel_id in youtube_chhannels:
-    youtube_chhannels[channel_id] = {
-        "channel_name": youtube_chhannels[channel_id]["channel_name"],
-        "channel_image_url": youtube_chhannels[channel_id]["channel_image_url"],
-        "channel_description": youtube_chhannels[channel_id]["channel_description"],
-        "video_id": youtube_chhannels[channel_id]["video_id"]
-    }
-
-with open("data/youtube_channels.json", "w")as f:
-    json.dump(youtube_chhannels, f, indent=4)
+with open("test.json", "w")as f:
+    json.dump(parse, f, indent=4)

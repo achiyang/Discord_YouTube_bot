@@ -40,6 +40,7 @@ class Youtube(commands.Cog, name="youtube"):
                     feed = await asyncio.to_thread(feedparser.parse, data)
                     for i in range(len(feed["entries"])):
                         video_id = feed["entries"][i]["yt_videoid"]
+                        title = feed["entries"][i]["title"]
                         published = feed["entries"][i]["published"]
                         if feed["entries"][i]["updated"]:
                             updated = feed["entries"][i]["updated"]
@@ -47,6 +48,7 @@ class Youtube(commands.Cog, name="youtube"):
                             updated = ""
                         views = feed["entries"][i]["media_statistics"]["views"]
                         video_ids[video_id] = {
+                            "title": title,
                             "published": published,
                             "updated": updated,
                             "views": views
