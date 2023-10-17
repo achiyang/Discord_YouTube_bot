@@ -13,12 +13,17 @@ async def fetch_youtube_video(channel_id, count: int = 0) -> dict | None:
                 feed = await asyncio.to_thread(feedparser.parse, data)
                 for i in range(len(feed["entries"])):
                     video_id = feed["entries"][i]["yt_videoid"]
+                    published = feed["entries"][i]["published"]
                     if feed["entries"][i]["updated"]:
                         updated = feed["entries"][i]["updated"]
-                        video_ids[video_id] = updated
                     else:
-                        published = feed["entries"][i]["published"]
-                        video_ids[video_id] = published
+                        updated = ""
+                    views = feed["entries"][i]["media_statistics"]["views"]
+                    video_ids[video_id] = {
+                        "published": published,
+                        "updated": updated,
+                        "views": views
+                    }
                 return video_ids
             elif count < 2:
                 return await fetch_youtube_video(channel_id, count + 1)
@@ -29,13 +34,7 @@ async def check_youtube(channel_id):
     video_ids = await fetch_youtube_video(channel_id)
     if video_ids != None:
         for video_id in video_ids:
-            if video_id in youtube_channels[channel_id]["video_id"]:
-                if youtube_channels[channel_id]["video_id"][video_id] != video_ids[video_id]:
-                    youtube_channels[channel_id]["video_id"][video_id] = video_ids[video_id]
-                    print(youtube_channels[channel_id]["video_id"][video_id],"\n",video_ids[video_id])
-            else:
-                youtube_channels[channel_id]["video_id"][video_id] = video_ids[video_id]
-                print(youtube_channels[channel_id]["video_id"][video_id],"\n",video_ids[video_id])
+            youtube_channels[channel_id]["video_id"][video_id] = video_ids[video_id]
         with open(f"{os.path.realpath(os.path.dirname(__file__))}/data/youtube_channels.json", "w") as f : 
             json.dump(youtube_channels, f, indent=4)
 

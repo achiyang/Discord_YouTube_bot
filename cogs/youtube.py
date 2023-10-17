@@ -40,12 +40,17 @@ class Youtube(commands.Cog, name="youtube"):
                     feed = await asyncio.to_thread(feedparser.parse, data)
                     for i in range(len(feed["entries"])):
                         video_id = feed["entries"][i]["yt_videoid"]
+                        published = feed["entries"][i]["published"]
                         if feed["entries"][i]["updated"]:
                             updated = feed["entries"][i]["updated"]
-                            video_ids[video_id] = updated
                         else:
-                            published = feed["entries"][i]["published"]
-                            video_ids[video_id] = published
+                            updated = ""
+                        views = feed["entries"][i]["media_statistics"]["views"]
+                        video_ids[video_id] = {
+                            "published": published,
+                            "updated": updated,
+                            "views": views
+                        }
                     return video_ids
                 elif count < 2:
                     return await self.fetch_youtube_video(channel_id, count + 1)
@@ -56,13 +61,9 @@ class Youtube(commands.Cog, name="youtube"):
         video_ids = await self.fetch_youtube_video(channel_id)
         if video_ids != None:
             for video_id in video_ids:
-                if video_id in youtube_channels[channel_id]["video_id"]:
-                    if youtube_channels[channel_id]["video_id"][video_id] != video_ids[video_id]:
-                        youtube_channels[channel_id]["video_id"][video_id] = video_ids[video_id]
-                        await self.send_new_video_link(video_id)
-                else:
-                    youtube_channels[channel_id]["video_id"][video_id] = video_ids[video_id]
+                if video_id not in youtube_channels[channel_id]["video_id"]:
                     await self.send_new_video_link(video_id)
+                youtube_channels[channel_id]["video_id"][video_id] = video_ids[video_id]
             with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f : 
                 json.dump(youtube_channels, f, indent=4)
 
@@ -140,10 +141,10 @@ class Youtube(commands.Cog, name="youtube"):
                     channel_id = str(channel['id']['channelId'])
                     if channel_id not in youtube_channels:
                         youtube_channels[channel_id] = {
-                            "video_id": [],
                             "channel_name": channel_names[selected_value],
                             "channel_image_url": channel_image_urls[selected_value],
-                            "channel_description": channel_descriptions[selected_value]
+                            "channel_description": channel_descriptions[selected_value],
+                            "video_id": {}
                         }
                         await sent_message.delete()
                         await context.send("알림을 받을 유튜브 채널을 추가했습니다.", embed=embeds[selected_value])
