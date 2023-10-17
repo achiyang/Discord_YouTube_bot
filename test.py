@@ -24,6 +24,8 @@ async def fetch_youtube_video(channel_id, count: int = 0) -> dict | None:
                         "updated": updated,
                         "views": views
                     }
+                with open("test.json", "w")as f:
+                    json.dump(video_ids, f, indent=4)
                 return video_ids
             elif count < 2:
                 return await fetch_youtube_video(channel_id, count + 1)
