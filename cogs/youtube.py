@@ -31,7 +31,7 @@ class Youtube(commands.Cog, name="youtube"):
         notification_channel = await self.bot.fetch_channel(notification_channel_id)
         await notification_channel.send(video_url)
 
-    async def fetch_youtube_video(self, channel_id, count: int = 0) -> dict | None:
+    async def fetch_youtube_video(self, channel_id, count: int | None = 0) -> dict | None:
         async with aiohttp.ClientSession() as session:
             async with session.get(f'https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}', allow_redirects=True) as response:
                 if response.status == 200:
@@ -41,7 +41,7 @@ class Youtube(commands.Cog, name="youtube"):
                     for i in range(len(feed["entries"])):
                         video_id = feed["entries"][i]["yt_videoid"]
                         published = feed["entries"][i]["published"]
-                        if feed["entries"][i]["updated"]:
+                        if "updated" in feed["entries"][i]:
                             updated = feed["entries"][i]["updated"]
                         else:
                             updated = ""
@@ -67,6 +67,9 @@ class Youtube(commands.Cog, name="youtube"):
                     if youtube_channels[channel_id]["video_id"][video_id]["views"] == "0":
                         if video_ids[video_id]["views"] != "0":
                             await self.send_new_video_link(video_id)
+                    else:
+                        if video_ids[video_id]["views"] == "0":
+                            video_ids[video_id]["views"] = ""
                 youtube_channels[channel_id]["video_id"][video_id] = video_ids[video_id]
             with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f : 
                 json.dump(youtube_channels, f, indent=4)
@@ -144,11 +147,12 @@ class Youtube(commands.Cog, name="youtube"):
                     channel = search_response.get("items", [])[selected_value]
                     channel_id = str(channel['id']['channelId'])
                     if channel_id not in youtube_channels:
+                        video_id = await self.fetch_youtube_video(channel)
                         youtube_channels[channel_id] = {
                             "channel_name": channel_names[selected_value],
                             "channel_image_url": channel_image_urls[selected_value],
                             "channel_description": channel_descriptions[selected_value],
-                            "video_id": {}
+                            "video_id": video_id if video_id != None else {}
                         }
                         await sent_message.delete()
                         await context.send("알림을 받을 유튜브 채널을 추가했습니다.", embed=embeds[selected_value])
