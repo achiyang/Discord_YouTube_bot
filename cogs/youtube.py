@@ -147,7 +147,7 @@ class Youtube(commands.Cog, name="youtube"):
                     channel = search_response.get("items", [])[selected_value]
                     channel_id = str(channel['id']['channelId'])
                     if channel_id not in youtube_channels:
-                        video_id = await self.fetch_youtube_video(channel)
+                        video_id = await self.fetch_youtube_video(channel_id)
                         youtube_channels[channel_id] = {
                             "channel_name": channel_names[selected_value],
                             "channel_image_url": channel_image_urls[selected_value],
