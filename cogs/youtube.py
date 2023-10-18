@@ -70,7 +70,7 @@ class Youtube(commands.Cog, name="youtube"):
                     else:
                         if video_ids[video_id]["views"] == "0":
                             video_ids[video_id]["views"] = ""
-                youtube_channels[channel_id]["video_id"] = {video_id: video_ids[video_id], **youtube_channels[channel_id]["video_id"]}
+                youtube_channels[channel_id]["video_id"][video_id] = video_ids[video_id]
             with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f : 
                 json.dump(youtube_channels, f, indent=4)
 
@@ -83,21 +83,9 @@ class Youtube(commands.Cog, name="youtube"):
         global youtube_channels
         with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "r") as f:
             youtube_channels = json.load(f)
-        tasks = [self.sort_video_id(channel_id) for channel_id in youtube_channels]
-        await asyncio.gather(*tasks)
 
     async def cog_load(self):
         self.loop_check.start()
-
-    async def sort_video_id(self, channel_id):
-        sorted_video_id = dict(
-            sorted(
-                youtube_channels[channel_id]["video_id"].items(),
-                key=lambda item: item[1]["published"],
-                reverse=True
-            )
-        )
-        youtube_channels[channel_id]["video_id"] = sorted_video_id
 
     @commands.hybrid_command(name='알림', description='알림을 받을 유튜브 채널을 추가합니다')
     @app_commands.describe(search='알림을 받을 유튜브 채널을 입력하세요')
