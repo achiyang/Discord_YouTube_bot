@@ -84,7 +84,7 @@ class Youtube(commands.Cog, name="youtube"):
         with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "r") as f:
             youtube_channels = json.load(f)
         tasks = [self.sort_video_id(channel_id) for channel_id in youtube_channels]
-        asyncio.gather(*tasks)
+        await asyncio.gather(*tasks)
 
     async def cog_load(self):
         self.loop_check.start()
@@ -93,7 +93,8 @@ class Youtube(commands.Cog, name="youtube"):
         sorted_video_id = dict(
             sorted(
                 youtube_channels[channel_id]["video_id"].items(),
-                key=lambda item: item[1]["published"]
+                key=lambda item: item[1]["published"],
+                reverse=True
             )
         )
         youtube_channels[channel_id]["video_id"] = sorted_video_id
