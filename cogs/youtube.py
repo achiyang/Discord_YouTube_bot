@@ -70,7 +70,7 @@ class Youtube(commands.Cog, name="youtube"):
                     else:
                         if video_ids[video_id]["views"] == "0":
                             video_ids[video_id]["views"] = ""
-                youtube_channels[channel_id]["video_id"][video_id] = video_ids[video_id]
+                youtube_channels[channel_id]["video_id"] = {video_id: video_ids[video_id], **youtube_channels[channel_id]["video_id"]}
             with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f : 
                 json.dump(youtube_channels, f, indent=4)
 
