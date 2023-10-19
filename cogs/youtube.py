@@ -94,17 +94,9 @@ class Youtube(commands.Cog, name="youtube"):
             match = re.search(r"https?://youtu.be/([\d\w-_]{11})", url)
             video_id = match.group(1)
 
-        elif re.search(r"https?://(www.)?youtube.com/watch\?v=([\d\w-_]{11})", url):
+        elif re.search(r"https?://(www.)?(youtube.com|youtu.be)/(watch\?v=|live/|shorts/)([\d\w-_]{11})", url):
             match = re.search(r"https?://(www.)?youtube.com/watch\?v=([\d\w-_]{11})", url)
-            video_id = match.group(2)
-
-        elif re.search(r"https?://(www.)?youtube.com/live/([\d\w-_]{11})", url):
-            match = re.search(r"https?://(www.)?youtube.com/live/([\d\w-_]{11})", url)
-            video_id = match.group(2)
-
-        elif re.search(r"https?://(www.)?youtube.com/shorts/([\d\w-_]{11})", url):
-            match = re.search(r"https?://(www.)?youtube.com/shorts/([\d\w-_]{11})", url)
-            video_id = match.group(2)
+            video_id = match.group(4)
 
         else:
             video_id = None
