@@ -87,6 +87,34 @@ class Youtube(commands.Cog, name="youtube"):
     async def cog_load(self):
         self.loop_check.start()
 
+    @commands.hybrid_command(name="썸네일", description="유튜브 영상 썸네일을 보냅니다.")
+    @app_commands.describe(url="유튜브 영상의 url을 입력하세요")
+    async def get_thumbnail(self, context: Context, url: str):
+        if re.search(r"https?://youtu.be/([\d\w-_]{11})", url):
+            match = re.search(r"https?://youtu.be/([\d\w-_]{11})", url)
+            video_id = match.group(1)
+
+        elif re.search(r"https?://(www.)?youtube.com/watch\?v=([\d\w-_]{11})", url):
+            match = re.search(r"https?://(www.)?youtube.com/watch\?v=([\d\w-_]{11})", url)
+            video_id = match.group(2)
+
+        elif re.search(r"https?://(www.)?youtube.com/live/([\d\w-_]{11})", url):
+            match = re.search(r"https?://(www.)?youtube.com/live/([\d\w-_]{11})", url)
+            video_id = match.group(2)
+
+        elif re.search(r"https?://(www.)?youtube.com/shorts/([\d\w-_]{11})", url):
+            match = re.search(r"https?://(www.)?youtube.com/shorts/([\d\w-_]{11})", url)
+            video_id = match.group(2)
+
+        else:
+            video_id = None
+
+        if video_id:
+            thumbnail_url = f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
+            await context.send(thumbnail_url)
+        else:
+            await context.send("유튜브 링크가 잘못되었습니다")
+
     @commands.hybrid_command(name='알림', description='알림을 받을 유튜브 채널을 추가합니다')
     @app_commands.describe(search='알림을 받을 유튜브 채널을 입력하세요')
     async def add_channel(self, context: Context, search: str):
