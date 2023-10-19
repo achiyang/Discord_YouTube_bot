@@ -90,14 +90,9 @@ class Youtube(commands.Cog, name="youtube"):
     @commands.hybrid_command(name="썸네일", description="유튜브 영상 썸네일을 보냅니다.")
     @app_commands.describe(url="유튜브 영상의 url을 입력하세요")
     async def get_thumbnail(self, context: Context, url: str):
-        if re.search(r"https?://youtu.be/([\d\w-_]{11})", url):
-            match = re.search(r"https?://youtu.be/([\d\w-_]{11})", url)
-            video_id = match.group(1)
-
-        elif re.search(r"https?://(www.)?(youtube.com|youtu.be)/(watch\?v=|live/|shorts/)([\d\w-_]{11})", url):
-            match = re.search(r"https?://(www.)?youtube.com/watch\?v=([\d\w-_]{11})", url)
+        if re.search(r"https?://(www.)?(youtube.com|youtu.be)/(watch\?v=|live/|shorts/)?([\d\w-_]{11})", url):
+            match = re.search(r"https?://(www.)?(youtube.com|youtu.be)/(watch\?v=|live/|shorts/)?([\d\w-_]{11})", url)
             video_id = match.group(4)
-
         else:
             video_id = None
 
