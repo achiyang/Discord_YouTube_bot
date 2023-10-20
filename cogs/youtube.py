@@ -74,8 +74,7 @@ class Youtube(commands.Cog, name="youtube"):
                     else:
                         if video_ids[video_id]["views"] == "0":
                             video_ids[video_id]["views"] = ""
-                youtube_channels[channel_id]["video_id"][video_id] = video_ids[video_id]
-            sort_videos()
+            youtube_channels[channel_id]["video_id"] = {**video_ids, **youtube_channels[channel_id]["video_id"]}
             with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f : 
                 json.dump(youtube_channels, f, indent=4)
 
@@ -332,7 +331,6 @@ class DeleteButton(discord.ui.Button):
             )
             await interaction.response.edit_message(embed=deleted_embed, view=None)
             del youtube_channels[re.search(r"del_(.*)", self.custom_id).group(1)]
-            sort_videos()
             with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f:
                 json.dump(youtube_channels, f, indent=4)
         else:
