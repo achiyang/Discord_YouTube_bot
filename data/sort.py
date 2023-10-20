@@ -2,6 +2,8 @@ import json
 import os
 
 def sort_videos():
+    os.chdir(os.path.realpath(os.path.dirname(os.path.dirname(__file__))))
+
     with open("data/youtube_channels.json", "r") as f:
         youtube_channels = json.load(f)
 
@@ -13,5 +15,4 @@ def sort_videos():
         json.dump(youtube_channels, f, indent=4)
 
 if __name__ == "__main__":
-    os.chdir(os.path.realpath(os.path.dirname(os.path.dirname(__file__))))
     sort_videos()
