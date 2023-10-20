@@ -19,11 +19,14 @@ from dotenv import load_dotenv
 
 os.chdir(os.path.dirname(os.path.dirname(__file__)))
 
-from data.sort import sort_videos
-
 load_dotenv()
 
 youtube = build('youtube', 'v3', developerKey=os.getenv("YOUTUBE_API_KEY"))
+
+def sort_videos():
+    for channel_id in youtube_channels:
+        sorted_dict = dict(sorted(youtube_channels[channel_id]["video_id"].items(), key=lambda item: item[1]["published"], reverse=True))
+        youtube_channels[channel_id]["video_id"] = sorted_dict
 
 def save_youtube_channels():
     with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data/youtube_channels.json"), "w") as f : 
@@ -88,9 +91,9 @@ class Youtube(commands.Cog, name="youtube"):
     @loop_check.before_loop
     async def before_loop_check(self):
         global youtube_channels
-        sort_videos()
         with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data/youtube_channels.json"), "r") as f:
             youtube_channels = json.load(f)
+        sort_videos()
 
     async def cog_load(self):
         self.loop_check.start()
