@@ -73,7 +73,7 @@ class Youtube(commands.Cog, name="youtube"):
                     await self.send_new_video_link(video_id)
                 else:
                     if youtube_channels[channel_id]["video_id"][video_id]["views"] == "0":
-                        if video_ids[video_id]["views"] != "0":
+                        if video_ids[video_id]["views"] != "0" and channel_id != "UC3_itH2KcrB1giRf05y6N6A":
                             await self.send_new_video_link(video_id)
                     else:
                         if video_ids[video_id]["views"] == "0":
