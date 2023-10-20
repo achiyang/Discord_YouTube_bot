@@ -17,6 +17,10 @@ import os
 import json
 from dotenv import load_dotenv
 
+os.chdir(os.path.realpath(os.path.dirname(os.path.dirname(__file__))))
+
+from data.sort import sort_videos
+
 load_dotenv()
 
 youtube = build('youtube', 'v3', developerKey=os.getenv("YOUTUBE_API_KEY"))
@@ -71,6 +75,7 @@ class Youtube(commands.Cog, name="youtube"):
                         if video_ids[video_id]["views"] == "0":
                             video_ids[video_id]["views"] = ""
                 youtube_channels[channel_id]["video_id"][video_id] = video_ids[video_id]
+            sort_videos()
             with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f : 
                 json.dump(youtube_channels, f, indent=4)
 
@@ -81,6 +86,7 @@ class Youtube(commands.Cog, name="youtube"):
     @loop_check.before_loop
     async def before_loop_check(self):
         global youtube_channels
+        sort_videos()
         with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "r") as f:
             youtube_channels = json.load(f)
 
@@ -326,6 +332,7 @@ class DeleteButton(discord.ui.Button):
             )
             await interaction.response.edit_message(embed=deleted_embed, view=None)
             del youtube_channels[re.search(r"del_(.*)", self.custom_id).group(1)]
+            sort_videos()
             with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f:
                 json.dump(youtube_channels, f, indent=4)
         else:
