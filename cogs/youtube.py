@@ -25,6 +25,10 @@ load_dotenv()
 
 youtube = build('youtube', 'v3', developerKey=os.getenv("YOUTUBE_API_KEY"))
 
+def sort_youtube_channels(channel_id):
+    sorted_dict = dict(sorted(youtube_channels[channel_id]["video_id"].items(), key=lambda item: item[1]["published"], reverse=True))
+    youtube_channels[channel_id]["video_id"] = sorted_dict
+
 def save_youtube_channels():
     with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data/youtube_channels.json"), "w") as f : 
         json.dump(youtube_channels, f, indent=4)
@@ -79,6 +83,7 @@ class Youtube(commands.Cog, name="youtube"):
                         if video_ids[video_id]["views"] == "0":
                             video_ids[video_id]["views"] = ""
                 youtube_channels[channel_id]["video_id"][video_id] = video_ids[video_id]
+            sort_youtube_channels(channel_id)
             save_youtube_channels()
 
     @tasks.loop(minutes=1.0)
