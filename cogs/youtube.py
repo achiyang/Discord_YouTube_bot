@@ -19,8 +19,6 @@ from dotenv import load_dotenv
 
 os.chdir(os.path.dirname(os.path.dirname(__file__)))
 
-from data.sort import sort_videos
-
 load_dotenv()
 
 youtube = build('youtube', 'v3', developerKey=os.getenv("YOUTUBE_API_KEY"))
@@ -93,7 +91,6 @@ class Youtube(commands.Cog, name="youtube"):
     @loop_check.before_loop
     async def before_loop_check(self):
         global youtube_channels
-        sort_videos()
         with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data/youtube_channels.json"), "r") as f:
             youtube_channels = json.load(f)
 
