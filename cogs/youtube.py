@@ -26,7 +26,7 @@ load_dotenv()
 youtube = build('youtube', 'v3', developerKey=os.getenv("YOUTUBE_API_KEY"))
 
 def save_youtube_channels():
-    with open(os.path.join({os.path.dirname(os.path.dirname(__file__))}, "data/youtube_channels.json"), "w") as f : 
+    with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data/youtube_channels.json"), "w") as f : 
         json.dump(youtube_channels, f, indent=4)
 
 class Youtube(commands.Cog, name="youtube"):
@@ -89,7 +89,7 @@ class Youtube(commands.Cog, name="youtube"):
     async def before_loop_check(self):
         global youtube_channels
         sort_videos()
-        with open(os.path.join({os.path.dirname(os.path.dirname(__file__))}, "data/youtube_channels.json"), "r") as f:
+        with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data/youtube_channels.json"), "r") as f:
             youtube_channels = json.load(f)
 
     async def cog_load(self):
