@@ -17,13 +17,17 @@ import os
 import json
 from dotenv import load_dotenv
 
-os.chdir(os.path.realpath(os.path.dirname(os.path.dirname(__file__))))
+os.chdir(os.path.dirname(os.path.dirname(__file__)))
 
 from data.sort import sort_videos
 
 load_dotenv()
 
 youtube = build('youtube', 'v3', developerKey=os.getenv("YOUTUBE_API_KEY"))
+
+def save_youtube_channels():
+    with open(os.path.join({os.path.dirname(os.path.dirname(__file__))}, "data/youtube_channels.json"), "w") as f : 
+        json.dump(youtube_channels, f, indent=4)
 
 class Youtube(commands.Cog, name="youtube"):
     def __init__(self, bot):
@@ -63,7 +67,7 @@ class Youtube(commands.Cog, name="youtube"):
 
     async def check_youtube(self, channel_id):
         video_ids = await self.fetch_youtube_video(channel_id)
-        if video_ids != None:
+        if not video_ids is None:
             for video_id in video_ids:
                 if video_id not in youtube_channels[channel_id]["video_id"]:
                     await self.send_new_video_link(video_id)
@@ -75,8 +79,7 @@ class Youtube(commands.Cog, name="youtube"):
                         if video_ids[video_id]["views"] == "0":
                             video_ids[video_id]["views"] = ""
             youtube_channels[channel_id]["video_id"] = {**video_ids, **youtube_channels[channel_id]["video_id"]}
-            with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f : 
-                json.dump(youtube_channels, f, indent=4)
+            save_youtube_channels()
 
     @tasks.loop(minutes=1.0)
     async def loop_check(self):
@@ -86,7 +89,7 @@ class Youtube(commands.Cog, name="youtube"):
     async def before_loop_check(self):
         global youtube_channels
         sort_videos()
-        with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "r") as f:
+        with open(os.path.join({os.path.dirname(os.path.dirname(__file__))}, "data/youtube_channels.json"), "r") as f:
             youtube_channels = json.load(f)
 
     async def cog_load(self):
@@ -331,8 +334,7 @@ class DeleteButton(discord.ui.Button):
             )
             await interaction.response.edit_message(embed=deleted_embed, view=None)
             del youtube_channels[re.search(r"del_(.*)", self.custom_id).group(1)]
-            with open(f"{os.path.realpath(os.path.dirname(os.path.dirname(__file__)))}/data/youtube_channels.json", "w") as f:
-                json.dump(youtube_channels, f, indent=4)
+            save_youtube_channels()
         else:
             await interaction.response.send_message("채널 삭제 권한은 아치양에게만 있습니다", ephemeral=True)
 
