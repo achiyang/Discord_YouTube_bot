@@ -82,11 +82,11 @@ class Youtube(commands.Cog, name="youtube"):
                             video_ids[video_id]["views"] = ""
                 youtube_channels[channel_id]["video_id"][video_id] = video_ids[video_id]
             sort_youtube_channel(channel_id)
-            save_youtube_channels()
 
     @tasks.loop(minutes=1.0)
     async def loop_check(self):
         await asyncio.gather(*[self.check_youtube(channel_id) for channel_id in youtube_channels])
+        save_youtube_channels()
 
     @loop_check.before_loop
     async def before_loop_check(self):
